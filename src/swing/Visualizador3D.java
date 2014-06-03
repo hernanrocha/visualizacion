@@ -280,9 +280,11 @@ public class Visualizador3D {
 	}
 
 	protected void cargar(File f) {
+		// 1) Parsear archivo *.sur para cargar estructura
 		g.loadSUR(f);
 		
-		g.ajustar(1200, 680);
+		// 2) Centrar objeto 3D
+		g.centrar(1200, 680);
 		
 //		g.trasladar(20, 20, 20);
 //		g.escalaIsotropica(10);

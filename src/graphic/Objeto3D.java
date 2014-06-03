@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -14,6 +13,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 
+import matriz.MatrizEscala;
+import matriz.MatrizIdentidad;
+import matriz.MatrizRotacionX;
+import matriz.MatrizRotacionY;
+import matriz.MatrizRotacionZ;
+import matriz.MatrizTransformacion;
 import swing.Imagen3D;
 
 public class Objeto3D {
@@ -23,14 +28,17 @@ public class Objeto3D {
 	private static final String COORDINATES = "*COORDINATES";
 
 	private Vector<ElementGroup> grupos = new Vector<ElementGroup>();
-	private HashMap<Integer, Punto3D> puntos = new HashMap<Integer, Punto3D>();	
+	private HashMap<Integer, Punto3D> puntos = new HashMap<Integer, Punto3D>();
+	private HashMap<Integer, Punto3D> puntosNuevos = new HashMap<Integer, Punto3D>();
+	private MatrizTransformacion matrizAcumulada = new MatrizIdentidad();
 
 	private FileReader fr;
 	private BufferedReader br;
 
-	public void ajustar(int width, int heigth){
+	public void centrar(int width, int heigth){
 		double xMin = 10000, xMax = -10000, yMin = 10000, yMax = -10000;
 		
+		// Obtener minimos y maximos
 		for (Punto3D punto : puntos.values()){
 			double x = punto.getX();
 			double y = punto.getY();
@@ -48,11 +56,7 @@ public class Objeto3D {
 				yMax = y;
 		}
 		
-		System.out.println(xMin);
-		System.out.println(xMax);
-		System.out.println(yMin);
-		System.out.println(yMax);
-		
+		// Realizar traslacion al centro
 		double tx = (double) width / 2 - (xMax - xMin) / 2;
 		double ty = (double) heigth / 2 - (yMax - yMin) / 2;
 		
@@ -60,65 +64,64 @@ public class Objeto3D {
 		
 	}
 	
-	public void aplicarTransformacion(double[][] M){
-		HashMap<Integer, Punto3D> puntosNuevos = new HashMap<Integer, Punto3D>();
+	public void aplicarTransformacion(){
+		puntosNuevos = new HashMap<Integer, Punto3D>();
 		
 		Set<Entry<Integer, Punto3D>> pares = puntos.entrySet();
 		for (Entry<Integer, Punto3D> par : pares){
-			puntosNuevos.put(par.getKey(), par.getValue().aplicarTransformacion(M));
-		}
+			puntosNuevos.put(par.getKey(), par.getValue().aplicarTransformacion(matrizAcumulada.getMatriz()));
+		}		
+	}
+	
+	public void agregarTransformacion(MatrizTransformacion matriz){
+		matrizAcumulada = matriz.producto(matrizAcumulada);
 		
-		puntos = puntosNuevos;
+		System.out.println("Matriz 2: ");
+		matriz.imprimir();
 		
+		System.out.println("Matriz resultado:");
+		matrizAcumulada.imprimir();
 	}
 	
 	// (Tx, Ty, Tz) Vector de traslacion
 	public void trasladar(double tx, double ty, double tz){
-		aplicarTransformacion(new double[][]{{1, 0, 0, tx},
-											 {0, 1, 0, ty},
-											 {0, 0, 1, tz},
-											 {0, 0, 0, 0 }});
+		System.out.println("Traslacion: " + tx + " - " + ty + " - " + tz);
+		agregarTransformacion(new MatrizTransformacion(new double[][]{{1, 0, 0, tx},
+											 						  {0, 1, 0, ty},
+											 						  {0, 0, 1, tz},
+											 						  {0, 0, 0, 1 }}));
 	}
 	
 	// (Sx, Sy, Sz) Vector de escala
-	public void escala(double sx, double sy, double sz){
-		aplicarTransformacion(new double[][]{{sx, 0, 0, 0},
-											 {0, sy, 0, 0},
-											 {0, 0, sz, 0},
-											 {0, 0, 0, 1 }});
+	public void escala(double sx, double sy, double sz){		
+		agregarTransformacion(new MatrizEscala(sx, sy, sz));
 	}
 	
 	// s = escala
 	public void escalaIsotropica(double s){
-		escala(s, s, s);
+		agregarTransformacion(new MatrizEscala(s));
 	}
 	
 	// Rotacion en eje X
 	// o = Angulo en radianes [0, 2pi]
 	public void rotacionX(double o){
-		aplicarTransformacion(new double[][]{{     1     ,      0     ,       0      , 0},
-											 {     0     , Math.cos(o), - Math.sin(o), 0},
-											 {     0     , Math.sin(o),   Math.cos(o), 0},
-											 {     0     ,      0     ,       0      , 1}});
+		agregarTransformacion(new MatrizRotacionX(o));
 	}
 	
 	// Rotacion en eje Y
 	public void rotacionY(double o){		
-		aplicarTransformacion(new double[][]{{  Math.cos(o),  0   , Math.sin(o)  , 0},
-											 {     0       ,  1   ,       0      , 0},											 
-											 {- Math.sin(o),  0   ,   Math.cos(o), 0},
-											 {       0     ,  0   ,       0      , 1}});
+		agregarTransformacion(new MatrizRotacionY(o));
 	}
 	
 	// Rotacion en eje Z.
 	public void rotacionZ(double o){
-		aplicarTransformacion(new double[][]{{Math.cos(o), - Math.sin(o), 0, 0},
-											 {Math.sin(o),   Math.cos(o), 0, 0},
-											 {     0     ,       0      , 1, 0},
-											 {     0     ,       0      , 0, 1}});
+		agregarTransformacion(new MatrizRotacionZ(o));
 	}
 
 	public void dibujar(Imagen3D imagen, Graphics g) {
+		// Aplicar transformacion
+		aplicarTransformacion();
+		
 		Vector<Incidence> elementos = new Vector<Incidence>();
 		
 		// Obtener elementos
@@ -129,7 +132,7 @@ public class Objeto3D {
 		// Ordenar elementos (Segun valor medio de Z)
 		Collections.sort(elementos, new Comparator<Incidence>() {
 			public int compare(Incidence elem1, Incidence elem2) {
-				Double z1 = elem1.getZPromedio(puntos), z2 = elem2.getZPromedio(puntos);
+				Double z1 = elem1.getZPromedio(puntosNuevos), z2 = elem2.getZPromedio(puntosNuevos);
 				
 				return z2.compareTo(z1);
 			}			
@@ -137,7 +140,7 @@ public class Objeto3D {
 		
 		// Dibujar en pantalla
 		for (Incidence elemento : elementos){
-			elemento.dibujar(imagen, g, puntos);
+			elemento.dibujar(imagen, g, puntosNuevos);
 		}
 		
 	}	
@@ -244,8 +247,8 @@ public class Objeto3D {
 		return line;
 	}
 	
-	public HashMap<Integer, Punto3D> getPuntos() {
-		return puntos;
-	}
+//	public HashMap<Integer, Punto3D> getPuntos() {
+//		return puntos;
+//	}
 	
 }

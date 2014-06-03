@@ -75,14 +75,21 @@ public class Imagen3D extends JPanel {
 		}
 		
 		public void zoomIn(int f, int c){
+			System.out.println(f + "-" + c);
 			// Mover a centro de coordenadas
-			objeto.trasladar(- getCtoX(c), - getFtoY(f), 0);
+			double tx = getCtoX(c), ty = getFtoY(f);
+			
+			System.out.println("ZoomIn: " + tx + " - " + ty);
+			objeto.trasladar(-tx, -ty, 0);
 			
 			// Realizar Zoom
 			objeto.escalaIsotropica(2);
 			
 			// Restaurar posicion
-			objeto.trasladar(getCtoX(c), getFtoY(f), 0);
+			objeto.trasladar(tx, ty, 0);
+
+			// Actualizar pantalla
+			updateUI();
 		}
 		
 		public void zoomOut(int f, int c){
@@ -94,5 +101,8 @@ public class Imagen3D extends JPanel {
 			
 			// Restaurar posicion
 			objeto.trasladar(getCtoX(c), getFtoY(f), 0);
+			
+			// Actualizar pantalla
+			updateUI();
 		}
 }

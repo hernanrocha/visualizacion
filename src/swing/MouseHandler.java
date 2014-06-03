@@ -31,9 +31,9 @@ public class MouseHandler extends MouseAdapter {
 		double sentido = evento.getPreciseWheelRotation();
 		
 		if(sentido < 0){
-			// Ampliar
+			panelImagen.zoomIn(evento.getY(), evento.getX());
 		}else{
-			// Reducir
+			panelImagen.zoomOut(evento.getY(), evento.getX());
 		}
 		
 	}
@@ -46,8 +46,6 @@ public class MouseHandler extends MouseAdapter {
 			panelImagen.zoomOut(yPosPressed, xPosPressed);
 		}
 		
-		// Actualizar pantalla
-		panelImagen.updateUI();
 	}
 	
 	@Override
