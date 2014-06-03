@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -21,18 +22,127 @@ public class Objeto3D {
 	private static final String INCIDENCE = "*INCIDENCE";
 	private static final String COORDINATES = "*COORDINATES";
 
-	private Vector<ElementGroup> groups = new Vector<ElementGroup>();
-//	private Vector<Punto3D> puntos = new Vector<Punto3D>();
-	private HashMap<Integer, Punto3D> puntos = new HashMap<Integer, Punto3D>();
-	
-	
-	public HashMap<Integer, Punto3D> getPuntos() {
-		return puntos;
-	}
+	private Vector<ElementGroup> grupos = new Vector<ElementGroup>();
+	private HashMap<Integer, Punto3D> puntos = new HashMap<Integer, Punto3D>();	
 
 	private FileReader fr;
 	private BufferedReader br;
+
+	public void ajustar(int width, int heigth){
+		double xMin = 10000, xMax = -10000, yMin = 10000, yMax = -10000;
+		
+		for (Punto3D punto : puntos.values()){
+			double x = punto.getX();
+			double y = punto.getY();
+			
+			if (xMin > x)
+				xMin = x;
+			
+			if (xMax < x)
+				xMax = x;
+			
+			if (yMin > y)
+				yMin = y;
+			
+			if (yMax < y)
+				yMax = y;
+		}
+		
+		System.out.println(xMin);
+		System.out.println(xMax);
+		System.out.println(yMin);
+		System.out.println(yMax);
+		
+		double tx = (double) width / 2 - (xMax - xMin) / 2;
+		double ty = (double) heigth / 2 - (yMax - yMin) / 2;
+		
+		trasladar(tx, ty, 0);
+		
+	}
 	
+	public void aplicarTransformacion(double[][] M){
+		HashMap<Integer, Punto3D> puntosNuevos = new HashMap<Integer, Punto3D>();
+		
+		Set<Entry<Integer, Punto3D>> pares = puntos.entrySet();
+		for (Entry<Integer, Punto3D> par : pares){
+			puntosNuevos.put(par.getKey(), par.getValue().aplicarTransformacion(M));
+		}
+		
+		puntos = puntosNuevos;
+		
+	}
+	
+	// (Tx, Ty, Tz) Vector de traslacion
+	public void trasladar(double tx, double ty, double tz){
+		aplicarTransformacion(new double[][]{{1, 0, 0, tx},
+											 {0, 1, 0, ty},
+											 {0, 0, 1, tz},
+											 {0, 0, 0, 0 }});
+	}
+	
+	// (Sx, Sy, Sz) Vector de escala
+	public void escala(double sx, double sy, double sz){
+		aplicarTransformacion(new double[][]{{sx, 0, 0, 0},
+											 {0, sy, 0, 0},
+											 {0, 0, sz, 0},
+											 {0, 0, 0, 1 }});
+	}
+	
+	// s = escala
+	public void escalaIsotropica(double s){
+		escala(s, s, s);
+	}
+	
+	// Rotacion en eje X
+	// o = Angulo en radianes [0, 2pi]
+	public void rotacionX(double o){
+		aplicarTransformacion(new double[][]{{     1     ,      0     ,       0      , 0},
+											 {     0     , Math.cos(o), - Math.sin(o), 0},
+											 {     0     , Math.sin(o),   Math.cos(o), 0},
+											 {     0     ,      0     ,       0      , 1}});
+	}
+	
+	// Rotacion en eje Y
+	public void rotacionY(double o){		
+		aplicarTransformacion(new double[][]{{  Math.cos(o),  0   , Math.sin(o)  , 0},
+											 {     0       ,  1   ,       0      , 0},											 
+											 {- Math.sin(o),  0   ,   Math.cos(o), 0},
+											 {       0     ,  0   ,       0      , 1}});
+	}
+	
+	// Rotacion en eje Z.
+	public void rotacionZ(double o){
+		aplicarTransformacion(new double[][]{{Math.cos(o), - Math.sin(o), 0, 0},
+											 {Math.sin(o),   Math.cos(o), 0, 0},
+											 {     0     ,       0      , 1, 0},
+											 {     0     ,       0      , 0, 1}});
+	}
+
+	public void dibujar(Imagen3D imagen, Graphics g) {
+		Vector<Incidence> elementos = new Vector<Incidence>();
+		
+		// Obtener elementos
+		for (ElementGroup grupo : grupos){
+			elementos.addAll(grupo.getElementos());
+		}
+		
+		// Ordenar elementos (Segun valor medio de Z)
+		Collections.sort(elementos, new Comparator<Incidence>() {
+			public int compare(Incidence elem1, Incidence elem2) {
+				Double z1 = elem1.getZPromedio(puntos), z2 = elem2.getZPromedio(puntos);
+				
+				return z2.compareTo(z1);
+			}			
+		});
+		
+		// Dibujar en pantalla
+		for (Incidence elemento : elementos){
+			elemento.dibujar(imagen, g, puntos);
+		}
+		
+	}	
+	
+	// Cargar SUR (Verificar espacios entre coordenadas)
 	public void loadSUR(File archivo){
 		try {
 			fr = new FileReader (archivo);
@@ -51,14 +161,14 @@ public class Objeto3D {
 						if(tokensElemGroup.length == 3){
 							int groupCant = Integer.parseInt(tokensElemGroup[1]);
 //							System.out.println("Grupo correcto de " + groupCant + " elementos de tipo " + tokensElemGroup[2]);
-							groups.add(new ElementGroup(tokensElemGroup[2], groupCant));
+							grupos.add(new ElementGroup(tokensElemGroup[2], groupCant));
 						}else{
 							System.out.println("ERROR al parsear grupo de elementos");
 						}
 					}
 				}else if (linea.indexOf(INCIDENCE) != -1){
 					// Recorrer grupo de elementos
-					for (ElementGroup group : groups){
+					for (ElementGroup group : grupos){
 //						System.out.println("Procesando " + group.getTipo());
 						
 						int cant = group.getCantidad();
@@ -117,63 +227,6 @@ public class Objeto3D {
 			e.printStackTrace();
 		}
 	}
-
-	public void aplicarTransformacion(double[][] M){
-		HashMap<Integer, Punto3D> puntosNuevos = new HashMap<Integer, Punto3D>();
-		
-		Set<Entry<Integer, Punto3D>> pares = puntos.entrySet();
-		for (Entry<Integer, Punto3D> par : pares){
-			puntosNuevos.put(par.getKey(), par.getValue().aplicarTransformacion(M));
-		}
-		
-		puntos = puntosNuevos;
-		
-	}
-	
-	public void trasladar(double tx, double ty, double tz){
-		aplicarTransformacion(new double[][]{{1, 0, 0, tx},
-											 {0, 1, 0, ty},
-											 {0, 0, 1, tz},
-											 {0, 0, 0, 0 }});
-	}
-	
-	public void escala(double sx, double sy, double sz){
-		aplicarTransformacion(new double[][]{{sx, 0, 0, 0},
-											 {0, sy, 0, 0},
-											 {0, 0, sz, 0},
-											 {0, 0, 0, 1 }});
-	}
-	
-	// s = escala
-	public void escalaIsotropica(double s){
-		escala(s, s, s);
-	}
-	
-	// o = Angulo en radianes (0, 2pi)
-	public void rotacionZ(double o){
-		aplicarTransformacion(new double[][]{{Math.cos(o), - Math.sin(o), 0, 0},
-											 {Math.sin(o),   Math.cos(o), 0, 0},
-											 {     0     ,       0      , 1, 0},
-											 {     0     ,       0      , 0, 1}});
-	}
-	
-	public void rotacionX(double o){
-//		1 0    0
-//		0 cos -sin
-//		0 sin cos
-		
-		aplicarTransformacion(new double[][]{{     1     ,      0     ,       0      , 0},
-											 {     0     , Math.cos(o), - Math.sin(o), 0},
-											 {     0     , Math.sin(o),   Math.cos(o), 0},
-											 {     0     ,      0     ,       0      , 1}});
-	}
-	
-	public void rotacionY(double o){		
-		aplicarTransformacion(new double[][]{{  Math.cos(o),  0   , Math.sin(o)  , 0},
-											 {     0       ,  1   ,       0      , 0},											 
-											 {- Math.sin(o),  0   ,   Math.cos(o), 0},
-											 {       0     ,  0   ,       0      , 1}});
-	}
 	
 	private String readLine(){
 		String line = null;
@@ -190,41 +243,9 @@ public class Objeto3D {
 		
 		return line;
 	}
-
-	public void dibujar(Imagen3D imagen, Graphics g) {
-		Vector<Incidence> elementos = new Vector<Incidence>();
-		
-		// Obtener elementos
-		for (ElementGroup group : groups){
-			elementos.addAll(group.getElementos());
-//			group.dibujar(g, puntos);
-		}
-
-//		System.out.println("No Ordenados");
-		
-		// Ordenar
-		Collections.sort(elementos, new Comparator<Incidence>() {
-
-			public int compare(Incidence elem1, Incidence elem2) {
-				Double z1 = elem1.getZPromedio(puntos), z2 = elem2.getZPromedio(puntos);
-				int comp = z2.compareTo(z1);
-
-//				System.out.println("Comparando " + z1 + " - " + z2 + " (" + comp + ")");
-				
-				return comp;
-			}
-			
-		});
-		
-//		System.out.println("Ordenados");
-		
-		// Dibujar
-		for (Incidence elemento : elementos){
-//			System.out.println("Dibujando " + elemento.getZPromedio(puntos));
-			elemento.dibujar(imagen, g, puntos);
-		}
-		
+	
+	public HashMap<Integer, Punto3D> getPuntos() {
+		return puntos;
 	}
-
-
+	
 }

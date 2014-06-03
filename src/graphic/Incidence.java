@@ -40,7 +40,7 @@ public class Incidence {
 		
 		if(p.getZ() > 0){
 //			System.out.println("Visible :" + p.getZ());
-			Color c = new Color(0, 0, (int) Math.min((double) p.getZ(), 255));
+			Color c = new Color(0, 0, (int) (p.getZ() * 255 / p.getModulo() ));
 			g.setColor(c);
 			g.fillPolygon(xPoints, yPoints, nPoints);
 		}

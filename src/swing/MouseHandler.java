@@ -1,4 +1,5 @@
 package swing;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -14,16 +15,39 @@ public class MouseHandler extends MouseAdapter {
 	private boolean rotar;
 	private int xPosPressed;
 	private int yPosPressed;
+	private Visualizador3D frame;
+	private boolean zoomIn;
+	private boolean zoomOut;
+	
 	private static final int MIN_PIXELS = 1;
 
-	public MouseHandler(Imagen3D panelImagen) {
+	public MouseHandler(Visualizador3D frame, Imagen3D panelImagen) {
+		this.frame = frame;
 		this.panelImagen = panelImagen;
 	}
 
+	@Override
 	public void mouseWheelMoved(MouseWheelEvent evento){
-		System.out.println(evento.getScrollAmount());
-		System.out.println(evento.getPreciseWheelRotation());
-		System.out.println(evento.getScrollType());
+		double sentido = evento.getPreciseWheelRotation();
+		
+		if(sentido < 0){
+			// Ampliar
+		}else{
+			// Reducir
+		}
+		
+	}
+	
+	@Override
+	public void mouseClicked(MouseEvent evento){
+		if(zoomIn){
+			panelImagen.zoomIn(yPosPressed, xPosPressed);
+		}else if(zoomOut){
+			panelImagen.zoomOut(yPosPressed, xPosPressed);
+		}
+		
+		// Actualizar pantalla
+		panelImagen.updateUI();
 	}
 	
 	@Override
@@ -69,26 +93,24 @@ public class MouseHandler extends MouseAdapter {
 		
 		long newTime = System.currentTimeMillis();
 		
-		if(mover && newTime - oldTime  > REFRESH_PERIOD){
-			oldTime = newTime;
+		if(newTime - oldTime  > REFRESH_PERIOD){
 			
+			oldTime = newTime;			
 			int difX = evento.getX() - xPos;
 			int difY = evento.getY() - yPos;
 			
+			// Procesar
 			if(rotar){
 				// Rotar
-
-				panelImagen.rotar(xPosPressed, yPosPressed, difX, difY);
-//				panelImagen.objeto.trasladar(-xPosPressed, - ( panelImagen.getHeight() - yPosPressed ), 0);
-//				panelImagen.objeto.rotacionX((double) (difY * Math.PI / 360));
-//				panelImagen.objeto.rotacionY((double) (difX * Math.PI / 360));
-//				panelImagen.objeto.trasladar(xPosPressed, panelImagen.getHeight() - yPosPressed, 0);
-			}else{
+				System.out.println("Rotar: " + difX + " - " + difY);
+				panelImagen.rotar(yPosPressed, xPosPressed, difY, difX);
+			}else if(mover){
 				// Mover
-				panelImagen.objeto.trasladar(difX, -difY, 0);
-				System.out.println("Movido: " + difX + " - " + difY);
+				System.out.println("Mover: " + difX + " - " + difY);
+				panelImagen.trasladar(difY, difX);
 			}
 			
+			// Actualizar pantalla
 			panelImagen.updateUI();
 			
 			xPos = evento.getX();
@@ -96,37 +118,36 @@ public class MouseHandler extends MouseAdapter {
 		}
 		
 	}
+
+
+	@Override
+	public void mouseMoved(MouseEvent evento){
+		frame.setPosicionActual(evento.getY(), evento.getX());
+	}
 	
-	public boolean isRotar() {
-		return rotar;
+	// Setters
+
+	public void setMover(boolean mover) {
+		System.out.println("Mover");
+		this.mover = mover;
 	}
 
 	public void setRotar(boolean rotar) {
 		this.rotar = rotar;
 	}
-
-	@Override
-	public void mouseMoved(MouseEvent evento){
-//		frame.setPosicionActual(evento.getY(), evento.getX());
+	
+	public void setZoomOut(boolean zoomOut) {
+		this.zoomOut = zoomOut;
 	}
 
-//	public boolean isMover() {
-//		return mover;
+	public void setZoomIn(boolean zoomIn) {
+		this.zoomIn = zoomIn;
+	}
+
+//	public void setZoom(boolean zoom) {
+//		System.out.println("Zoom");
+//		this.zoom = zoom;
 //	}
-
-	public void setMover(boolean mover) {
-//		System.out.println("Set mover " + mover);
-		this.mover = mover;
-	}
-
-//	public boolean isZoom() {
-//		return zoom;
-//	}
-
-	public void setZoom(boolean zoom) {
-		System.out.println("Set zoom " + zoom);
-		this.zoom = zoom;
-	}
 	
 }
 
