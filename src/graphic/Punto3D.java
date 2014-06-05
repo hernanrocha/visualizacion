@@ -68,4 +68,14 @@ public class Punto3D {
 		return Math.sqrt(x * x + y * y + z * z);
 	}
 
+	public double productoEscalar(Punto3D normal) {
+		// TODO Auto-generated method stub
+		return x * normal.x + y * normal.y + z * normal.z;
+	}
+
+	public Punto3D versor() {
+		double modulo = getModulo();
+		return new Punto3D(x / modulo, y / modulo, z / modulo);
+	}
+
 }

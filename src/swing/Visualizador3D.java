@@ -33,26 +33,50 @@ import javax.swing.JLabel;
 
 import com.sun.org.apache.bcel.internal.generic.LALOAD;
 
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
+import matriz.MatrizTransformacion;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+
 public class Visualizador3D {
 
 	private JFrame frmVisualizadord;
 	protected Objeto3D g = new Objeto3D();
 	private Imagen3D panelImagen;
 	private JPanel panelOpciones;
-	private JPanel panel_1;
 	private JButton btnRotar;
 	private MouseHandler mouseHandler;
 	private JMenuBar menuBar;
 	private JMenu mnArchivo;
 	private JMenuItem mntmCargarArchivo;
-	private JRadioButton rdbtnMover;
-	private JRadioButton rdbtnRotar;
-	private JPanel panelAcciones;
 	private final ButtonGroup groupAcciones = new ButtonGroup();
 	private JLabel labelPosX;
 	private JLabel lblPosY;
-	private JRadioButton rdbtnAmpliar;
-	private JRadioButton rdbtnReducir;
+	private JComboBox comboVista;
+	private JMenu mnAyuda;
+	private JMenuItem mntmAcercaDe;
+	private JCheckBox chckbxPerspectiva;
+	private JTable table;
+	private JButton btnAplicar;
+	private JComboBox comboBox_1;
+	private JPanel panel;
+	private JSpinner spinPerspectiva;
+	private JLabel lblDistancia;
+	private JPanel panel_2;
+	private JPanel panel_3;
+	private JCheckBox chckbxBackfaceCulling;
+	private JSpinner ambienteR;
+	private JSpinner ambienteG;
+	private JSpinner spinner;
+	private JLabel lblRojo;
+	private JLabel lblVerde;
+	private JLabel lblAzul;
+	private JPanel panel_1;
 
 	/**
 	 * Launch the application.
@@ -77,49 +101,80 @@ public class Visualizador3D {
 		
 		/* Funcionalidad
 		 *
-		 * 1) Perspectiva, iluminacion (ambiente, origen), borrar los vectores saliente
-		 * 2) Transformaciones Mouse - Deformaciones
-		 * 3) Vista (triangulos, puntos, solido)
-		 * 4) Centrar automaticamente
+		 * 1) Perspectiva, iluminacion (ambiente, origen)
+		 * 2) Transformaciones Deformaciones
 		 * 5) Detectar profundidad al rotar
-		 * 6) Titulo, tamaño, logo, ayuda, about
+		 * 6) tamaño, logo, ayuda, about.
+		 * 7) Atajos, imagenes de botones
 		 * 
 		 */
 
 		initialize();
 		
-		// Opciones por defecto
-		rdbtnMover.setSelected(true);
+		panel_1 = new JPanel();
+		panel_1.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Luz Ambiente", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
+		gbc_panel_1.fill = GridBagConstraints.BOTH;
+		gbc_panel_1.insets = new Insets(0, 0, 5, 0);
+		gbc_panel_1.gridx = 0;
+		gbc_panel_1.gridy = 1;
+		panelOpciones.add(panel_1, gbc_panel_1);
+		GridBagLayout gbl_panel_1 = new GridBagLayout();
+		gbl_panel_1.columnWidths = new int[]{48, 0, 0};
+		gbl_panel_1.rowHeights = new int[]{0, 0, 0, 0};
+		gbl_panel_1.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+		gbl_panel_1.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
+		panel_1.setLayout(gbl_panel_1);
 		
-		rdbtnAmpliar = new JRadioButton("Ampliar");
-		rdbtnAmpliar.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				mouseHandler.setZoomIn(e.getStateChange() == ItemEvent.SELECTED);
-			}
-		});
-		groupAcciones.add(rdbtnAmpliar);
-		GridBagConstraints gbc_rdbtnAmpliar = new GridBagConstraints();
-		gbc_rdbtnAmpliar.fill = GridBagConstraints.VERTICAL;
-		gbc_rdbtnAmpliar.anchor = GridBagConstraints.WEST;
-		gbc_rdbtnAmpliar.insets = new Insets(0, 15, 0, 5);
-		gbc_rdbtnAmpliar.gridx = 0;
-		gbc_rdbtnAmpliar.gridy = 2;
-		panelAcciones.add(rdbtnAmpliar, gbc_rdbtnAmpliar);
+		lblRojo = new JLabel("Rojo");
+		GridBagConstraints gbc_lblRojo = new GridBagConstraints();
+		gbc_lblRojo.anchor = GridBagConstraints.EAST;
+		gbc_lblRojo.insets = new Insets(0, 0, 5, 5);
+		gbc_lblRojo.gridx = 0;
+		gbc_lblRojo.gridy = 0;
+		panel_1.add(lblRojo, gbc_lblRojo);
 		
-		rdbtnReducir = new JRadioButton("Reducir");
-		rdbtnReducir.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				mouseHandler.setZoomOut(e.getStateChange() == ItemEvent.SELECTED);
-			}
-		});
-		groupAcciones.add(rdbtnReducir);
-		GridBagConstraints gbc_rdbtnReducir = new GridBagConstraints();
-		gbc_rdbtnReducir.insets = new Insets(0, 15, 0, 5);
-		gbc_rdbtnReducir.fill = GridBagConstraints.VERTICAL;
-		gbc_rdbtnReducir.anchor = GridBagConstraints.WEST;
-		gbc_rdbtnReducir.gridx = 0;
-		gbc_rdbtnReducir.gridy = 3;
-		panelAcciones.add(rdbtnReducir, gbc_rdbtnReducir);
+		lblVerde = new JLabel("Verde");
+		GridBagConstraints gbc_lblVerde = new GridBagConstraints();
+		gbc_lblVerde.anchor = GridBagConstraints.EAST;
+		gbc_lblVerde.insets = new Insets(0, 0, 5, 5);
+		gbc_lblVerde.gridx = 0;
+		gbc_lblVerde.gridy = 1;
+		panel_1.add(lblVerde, gbc_lblVerde);
+		
+		ambienteG = new JSpinner();
+		GridBagConstraints gbc_ambienteG = new GridBagConstraints();
+		gbc_ambienteG.anchor = GridBagConstraints.WEST;
+		gbc_ambienteG.insets = new Insets(0, 0, 5, 0);
+		gbc_ambienteG.gridx = 1;
+		gbc_ambienteG.gridy = 1;
+		panel_1.add(ambienteG, gbc_ambienteG);
+		ambienteG.setModel(new SpinnerNumberModel(0, 0, 255, 1));
+		
+		lblAzul = new JLabel("Azul");
+		GridBagConstraints gbc_lblAzul = new GridBagConstraints();
+		gbc_lblAzul.anchor = GridBagConstraints.EAST;
+		gbc_lblAzul.insets = new Insets(0, 0, 0, 5);
+		gbc_lblAzul.gridx = 0;
+		gbc_lblAzul.gridy = 2;
+		panel_1.add(lblAzul, gbc_lblAzul);
+		
+		ambienteR = new JSpinner();
+		GridBagConstraints gbc_ambienteR = new GridBagConstraints();
+		gbc_ambienteR.anchor = GridBagConstraints.WEST;
+		gbc_ambienteR.insets = new Insets(0, 0, 5, 0);
+		gbc_ambienteR.gridx = 1;
+		gbc_ambienteR.gridy = 0;
+		panel_1.add(ambienteR, gbc_ambienteR);
+		ambienteR.setModel(new SpinnerNumberModel(0, 0, 255, 1));
+		
+		spinner = new JSpinner();
+		GridBagConstraints gbc_spinner = new GridBagConstraints();
+		gbc_spinner.anchor = GridBagConstraints.WEST;
+		gbc_spinner.gridx = 1;
+		gbc_spinner.gridy = 2;
+		panel_1.add(spinner, gbc_spinner);
+		spinner.setModel(new SpinnerNumberModel(0, 0, 255, 1));
 		
 		labelPosX = new JLabel("New label");
 		GridBagConstraints gbc_labelPosX = new GridBagConstraints();
@@ -130,14 +185,137 @@ public class Visualizador3D {
 		
 		lblPosY = new JLabel("New label");
 		GridBagConstraints gbc_lblPosY = new GridBagConstraints();
+		gbc_lblPosY.insets = new Insets(0, 0, 5, 0);
 		gbc_lblPosY.gridx = 0;
 		gbc_lblPosY.gridy = 3;
 		panelOpciones.add(lblPosY, gbc_lblPosY);
+		
+		panel = new JPanel();
+		panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Transformaciones", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		GridBagConstraints gbc_panel = new GridBagConstraints();
+		gbc_panel.fill = GridBagConstraints.BOTH;
+		gbc_panel.gridx = 0;
+		gbc_panel.gridy = 4;
+		panelOpciones.add(panel, gbc_panel);
+		GridBagLayout gbl_panel = new GridBagLayout();
+		gbl_panel.columnWidths = new int[]{48, 0};
+		gbl_panel.rowHeights = new int[]{0, 0, 0, 0};
+		gbl_panel.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_panel.rowWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
+		panel.setLayout(gbl_panel);
+		
+		comboBox_1 = new JComboBox();
+		comboBox_1.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent item) {
+				if (item.getStateChange() == ItemEvent.SELECTED){
+					actualizarTransformacionTabla();
+				}
+			}
+		});
+		GridBagConstraints gbc_comboBox_1 = new GridBagConstraints();
+		gbc_comboBox_1.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_1.insets = new Insets(0, 0, 5, 0);
+		gbc_comboBox_1.gridx = 0;
+		gbc_comboBox_1.gridy = 0;
+		panel.add(comboBox_1, gbc_comboBox_1);
+		comboBox_1.setModel(new DefaultComboBoxModel(new String[] {"Shear", "Twisting", "Tappering", "Bending", "Personalizada"}));
+		comboBox_1.setSelectedIndex(0);
+		
+		table = new JTable();
+		GridBagConstraints gbc_table = new GridBagConstraints();
+		gbc_table.fill = GridBagConstraints.BOTH;
+		gbc_table.insets = new Insets(0, 0, 5, 0);
+		gbc_table.gridx = 0;
+		gbc_table.gridy = 1;
+		panel.add(table, gbc_table);
+		table.setModel(new DefaultTableModel(
+			new Object[][] {
+				{"1", null, null, null},
+				{null, "1", null, null},
+				{null, null, "1", null},
+				{null, null, null, "1"},
+			},
+			new String[] {
+				"New column", "New column", "New column", "New column"
+			}
+		) {
+			Class[] columnTypes = new Class[] {
+				String.class, String.class, String.class, String.class
+			};
+			public Class getColumnClass(int columnIndex) {
+				return columnTypes[columnIndex];
+			}
+		});
+		table.getColumnModel().getColumn(0).setResizable(false);
+		table.getColumnModel().getColumn(0).setPreferredWidth(30);
+		table.getColumnModel().getColumn(0).setMinWidth(10);
+		table.getColumnModel().getColumn(1).setPreferredWidth(30);
+		table.getColumnModel().getColumn(2).setPreferredWidth(30);
+		table.getColumnModel().getColumn(3).setPreferredWidth(30);
+		
+		btnAplicar = new JButton("Aplicar");
+		btnAplicar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				agregarTransformacionTabla();
+			}
+		});
+		GridBagConstraints gbc_btnAplicar = new GridBagConstraints();
+		gbc_btnAplicar.gridx = 0;
+		gbc_btnAplicar.gridy = 2;
+		panel.add(btnAplicar, gbc_btnAplicar);
 		
 		// Cargar SUR
 		cargar(new File("sur/747.sur"));
 //		cargarMisil();
 //		cargarFork();
+	}
+
+	protected void actualizarTransformacionTabla() {
+		System.out.println("Actualizando");
+		int transformacion = 0;
+		
+		switch ((String) comboBox_1.getSelectedItem()) {
+		case "Shear":
+			transformacion = Tabla.SHEAR;
+			break;
+		case "Twisting":
+			transformacion = Tabla.TWISTING;
+			break;
+		case "Tappering":
+			transformacion = Tabla.TAPPERING;
+			break;
+		case "Bending":
+			transformacion = Tabla.BENDING;
+			break;
+		case "Personalizada":
+			transformacion = Tabla.PERSONALIZADA;
+			break;
+		default:
+			break;
+		}
+		
+		Tabla.cargar(table, transformacion);
+	}
+
+	protected void agregarTransformacionTabla() {
+		double[][] matriz = new double[4][4];
+		
+		for(int i = 0; i < 4; i++){
+			for (int j = 0; j < 4; j++){
+				Object valor = table.getValueAt(i, j);
+				System.out.println(valor);
+				
+				try{
+					if (valor != null){
+						matriz[i][j] = Double.parseDouble((String) valor);
+					}
+				} catch (Exception e){
+				}
+			}
+		}
+		
+		g.agregarTransformacion(new MatrizTransformacion(matriz));
+		panelImagen.updateUI();
 	}
 
 	/**
@@ -182,30 +360,116 @@ public class Visualizador3D {
 		
 		GridBagLayout gbl_panelOpciones = new GridBagLayout();
 		gbl_panelOpciones.columnWidths = new int[]{48, 0};
-		gbl_panelOpciones.rowHeights = new int[]{29, 38, 0, 0, 0};
+		gbl_panelOpciones.rowHeights = new int[]{29, 0, 0, 0, 0, 0};
 		gbl_panelOpciones.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_panelOpciones.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_panelOpciones.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panelOpciones.setLayout(gbl_panelOpciones);
 		
-		initAcciones();
+		panel_2 = new JPanel();
+		panel_2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Visualizacion", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
+		gbc_panel_2.fill = GridBagConstraints.BOTH;
+		gbc_panel_2.insets = new Insets(0, 0, 5, 0);
+		gbc_panel_2.gridx = 0;
+		gbc_panel_2.gridy = 0;
+		panelOpciones.add(panel_2, gbc_panel_2);
+		GridBagLayout gbl_panel_2 = new GridBagLayout();
+		gbl_panel_2.columnWidths = new int[]{48, 0};
+		gbl_panel_2.rowHeights = new int[]{29, 0, 0, 0, 0};
+		gbl_panel_2.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_panel_2.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		panel_2.setLayout(gbl_panel_2);
 		
-		panel_1 = new JPanel();
-		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
-		gbc_panel_1.insets = new Insets(0, 0, 5, 0);
-		gbc_panel_1.fill = GridBagConstraints.BOTH;
-		gbc_panel_1.gridx = 0;
-		gbc_panel_1.gridy = 1;
-		panelOpciones.add(panel_1, gbc_panel_1);
-		GridBagLayout gbl_panel_1 = new GridBagLayout();
-		gbl_panel_1.columnWidths = new int[]{48, 0};
-		gbl_panel_1.rowHeights = new int[]{59, 0};
-		gbl_panel_1.columnWeights = new double[]{0.0, Double.MIN_VALUE};
-		gbl_panel_1.rowWeights = new double[]{0.0, Double.MIN_VALUE};
-		panel_1.setLayout(gbl_panel_1);
+		comboVista = new JComboBox();
+		GridBagConstraints gbc_comboVista = new GridBagConstraints();
+		gbc_comboVista.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboVista.insets = new Insets(0, 0, 5, 0);
+		gbc_comboVista.gridx = 0;
+		gbc_comboVista.gridy = 0;
+		panel_2.add(comboVista, gbc_comboVista);
+		comboVista.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent item) {
+				if (item.getStateChange() == ItemEvent.SELECTED){
+					actualizarVista();
+				}
+			}
+		});
+		comboVista.setModel(new DefaultComboBoxModel(new String[] {"Puntos", "Triangulacion", "Solido"}));
+		comboVista.setSelectedIndex(2);
+		comboVista.setToolTipText("Modo de Visualizacion");
+		
+		chckbxBackfaceCulling = new JCheckBox("Backface Culling");
+		chckbxBackfaceCulling.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent item) {
+				panelImagen.setBackfaceCulling(item.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+		GridBagConstraints gbc_chckbxBackfaceCulling = new GridBagConstraints();
+		gbc_chckbxBackfaceCulling.anchor = GridBagConstraints.WEST;
+		gbc_chckbxBackfaceCulling.insets = new Insets(0, 10, 5, 5);
+		gbc_chckbxBackfaceCulling.gridx = 0;
+		gbc_chckbxBackfaceCulling.gridy = 1;
+		panel_2.add(chckbxBackfaceCulling, gbc_chckbxBackfaceCulling);
+		
+		chckbxPerspectiva = new JCheckBox("Perspectiva");
+		GridBagConstraints gbc_chckbxPerspectiva = new GridBagConstraints();
+		gbc_chckbxPerspectiva.anchor = GridBagConstraints.WEST;
+		gbc_chckbxPerspectiva.insets = new Insets(0, 10, 5, 0);
+		gbc_chckbxPerspectiva.gridx = 0;
+		gbc_chckbxPerspectiva.gridy = 2;
+		panel_2.add(chckbxPerspectiva, gbc_chckbxPerspectiva);
+		chckbxPerspectiva.setToolTipText("Ver en Perspectiva");
+		
+		panel_3 = new JPanel();
+		GridBagConstraints gbc_panel_3 = new GridBagConstraints();
+		gbc_panel_3.fill = GridBagConstraints.BOTH;
+		gbc_panel_3.gridx = 0;
+		gbc_panel_3.gridy = 3;
+		panel_2.add(panel_3, gbc_panel_3);
+		GridBagLayout gbl_panel_3 = new GridBagLayout();
+		gbl_panel_3.columnWidths = new int[]{48, 0, 0};
+		gbl_panel_3.rowHeights = new int[]{0, 0};
+		gbl_panel_3.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+		gbl_panel_3.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+		panel_3.setLayout(gbl_panel_3);
+		
+		lblDistancia = new JLabel("Distancia");
+		GridBagConstraints gbc_lblDistancia = new GridBagConstraints();
+		gbc_lblDistancia.insets = new Insets(0, 10, 0, 5);
+		gbc_lblDistancia.gridx = 0;
+		gbc_lblDistancia.gridy = 0;
+		panel_3.add(lblDistancia, gbc_lblDistancia);
+		
+		spinPerspectiva = new JSpinner();
+		GridBagConstraints gbc_spinPerspectiva = new GridBagConstraints();
+		gbc_spinPerspectiva.insets = new Insets(0, 0, 0, 5);
+		gbc_spinPerspectiva.anchor = GridBagConstraints.WEST;
+		gbc_spinPerspectiva.gridx = 1;
+		gbc_spinPerspectiva.gridy = 0;
+		panel_3.add(spinPerspectiva, gbc_spinPerspectiva);
+		spinPerspectiva.setModel(new SpinnerNumberModel(0.0, 0.0, 3.0, 0.1));
 		
 		initMenu();
 		
 
+	}
+
+	protected void actualizarVista() {
+		String vista = (String) comboVista.getSelectedItem();
+		
+		switch (vista) {
+		case "Solido":
+			panelImagen.setVista(Objeto3D.VISTA_SOLIDO);
+			break;
+		case "Triangulacion":
+			panelImagen.setVista(Objeto3D.VISTA_TRIANGULOS);
+			break;
+		case "Puntos":
+			panelImagen.setVista(Objeto3D.VISTA_PUNTOS);
+			break;
+		default:
+			break;
+		}
 	}
 
 	// Menu Bar
@@ -225,57 +489,11 @@ public class Visualizador3D {
 		});
 		mnArchivo.add(mntmCargarArchivo);
 		
-	}
-
-	// Panel Opciones - Menu Acciones
-	private void initAcciones() {
+		mnAyuda = new JMenu("Ayuda");
+		menuBar.add(mnAyuda);
 		
-		panelAcciones = new JPanel();
-		panelAcciones.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Acciones", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		
-		GridBagConstraints gbc_panelAcciones = new GridBagConstraints();
-		gbc_panelAcciones.insets = new Insets(0, 0, 5, 0);
-		gbc_panelAcciones.fill = GridBagConstraints.BOTH;
-		gbc_panelAcciones.gridx = 0;
-		gbc_panelAcciones.gridy = 0;
-		panelOpciones.add(panelAcciones, gbc_panelAcciones);
-		
-		GridBagLayout gbl_panelAcciones = new GridBagLayout();
-		gbl_panelAcciones.columnWidths = new int[]{53, 0};
-		gbl_panelAcciones.rowHeights = new int[]{23, 0, 0, 0, 0};
-		gbl_panelAcciones.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_panelAcciones.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		panelAcciones.setLayout(gbl_panelAcciones);
-		
-		rdbtnMover = new JRadioButton("Mover");
-		rdbtnMover.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-		    	mouseHandler.setMover(e.getStateChange() == ItemEvent.SELECTED);
-			}
-		});
-		groupAcciones.add(rdbtnMover);
-		
-		GridBagConstraints gbc_rdbtnMover = new GridBagConstraints();
-		gbc_rdbtnMover.anchor = GridBagConstraints.NORTHWEST;
-		gbc_rdbtnMover.insets = new Insets(5, 15, 0, 5);
-		gbc_rdbtnMover.gridx = 0;
-		gbc_rdbtnMover.gridy = 0;
-		panelAcciones.add(rdbtnMover, gbc_rdbtnMover);
-		
-		rdbtnRotar = new JRadioButton("Rotar");
-		rdbtnRotar.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-		    	mouseHandler.setRotar(e.getStateChange() == ItemEvent.SELECTED);
-			}
-		});
-		groupAcciones.add(rdbtnRotar);
-		
-		GridBagConstraints gbc_rdbtnRotar = new GridBagConstraints();
-		gbc_rdbtnRotar.insets = new Insets(0, 15, 0, 5);
-		gbc_rdbtnRotar.anchor = GridBagConstraints.NORTHWEST;
-		gbc_rdbtnRotar.gridx = 0;
-		gbc_rdbtnRotar.gridy = 1;
-		panelAcciones.add(rdbtnRotar, gbc_rdbtnRotar);
+		mntmAcercaDe = new JMenuItem("Acerca De");
+		mnAyuda.add(mntmAcercaDe);
 		
 	}
 

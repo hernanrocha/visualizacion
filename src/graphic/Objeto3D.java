@@ -15,10 +15,12 @@ import java.util.Vector;
 
 import matriz.MatrizEscala;
 import matriz.MatrizIdentidad;
+import matriz.MatrizPerspectiva;
 import matriz.MatrizRotacionX;
 import matriz.MatrizRotacionY;
 import matriz.MatrizRotacionZ;
 import matriz.MatrizTransformacion;
+import matriz.MatrizTraslacion;
 import swing.Imagen3D;
 
 public class Objeto3D {
@@ -26,11 +28,15 @@ public class Objeto3D {
 	private static final String ELEMENT_GROUPS = "*ELEMENT GROUPS";
 	private static final String INCIDENCE = "*INCIDENCE";
 	private static final String COORDINATES = "*COORDINATES";
+	public static final int VISTA_TRIANGULOS = 1;
+	public static final int VISTA_SOLIDO = 2;
+	public static final int VISTA_PUNTOS = 3;
 
 	private Vector<ElementGroup> grupos = new Vector<ElementGroup>();
 	private HashMap<Integer, Punto3D> puntos = new HashMap<Integer, Punto3D>();
 	private HashMap<Integer, Punto3D> puntosNuevos = new HashMap<Integer, Punto3D>();
 	private MatrizTransformacion matrizAcumulada = new MatrizIdentidad();
+	
 
 	private FileReader fr;
 	private BufferedReader br;
@@ -69,27 +75,21 @@ public class Objeto3D {
 		
 		Set<Entry<Integer, Punto3D>> pares = puntos.entrySet();
 		for (Entry<Integer, Punto3D> par : pares){
+//			MatrizTransformacion matriz = new MatrizPerspectiva(distancia);
+//			matriz = matriz.producto(matrizAcumulada);
+			
 			puntosNuevos.put(par.getKey(), par.getValue().aplicarTransformacion(matrizAcumulada.getMatriz()));
 		}		
 	}
 	
 	public void agregarTransformacion(MatrizTransformacion matriz){
-		matrizAcumulada = matriz.producto(matrizAcumulada);
-		
-		System.out.println("Matriz 2: ");
 		matriz.imprimir();
-		
-		System.out.println("Matriz resultado:");
-		matrizAcumulada.imprimir();
+		matrizAcumulada = matriz.producto(matrizAcumulada);
 	}
 	
 	// (Tx, Ty, Tz) Vector de traslacion
 	public void trasladar(double tx, double ty, double tz){
-		System.out.println("Traslacion: " + tx + " - " + ty + " - " + tz);
-		agregarTransformacion(new MatrizTransformacion(new double[][]{{1, 0, 0, tx},
-											 						  {0, 1, 0, ty},
-											 						  {0, 0, 1, tz},
-											 						  {0, 0, 0, 1 }}));
+		agregarTransformacion(new MatrizTraslacion(tx, ty, tz));
 	}
 	
 	// (Sx, Sy, Sz) Vector de escala
@@ -119,17 +119,17 @@ public class Objeto3D {
 	}
 
 	public void dibujar(Imagen3D imagen, Graphics g) {
-		// Aplicar transformacion
+		// 1) Aplicar transformacion a puntos originales
 		aplicarTransformacion();
 		
-		Vector<Incidence> elementos = new Vector<Incidence>();
 		
 		// Obtener elementos
+		Vector<Incidence> elementos = new Vector<Incidence>();
 		for (ElementGroup grupo : grupos){
 			elementos.addAll(grupo.getElementos());
 		}
 		
-		// Ordenar elementos (Segun valor medio de Z)
+		// 2) Ordenar elementos segun valor medio de Z
 		Collections.sort(elementos, new Comparator<Incidence>() {
 			public int compare(Incidence elem1, Incidence elem2) {
 				Double z1 = elem1.getZPromedio(puntosNuevos), z2 = elem2.getZPromedio(puntosNuevos);
@@ -138,7 +138,7 @@ public class Objeto3D {
 			}			
 		});
 		
-		// Dibujar en pantalla
+		// 3) Dibujar los elementos en pantalla
 		for (Incidence elemento : elementos){
 			elemento.dibujar(imagen, g, puntosNuevos);
 		}
