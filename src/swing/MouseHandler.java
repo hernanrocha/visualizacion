@@ -12,16 +12,10 @@ public class MouseHandler extends MouseAdapter {
 	private Imagen3D panelImagen;
 	private long oldTime = 0;
 	
-	private boolean mover, zoom;
-	private boolean rotar;
 	private int xPosPressed;
 	private int yPosPressed;
 	private Visualizador3D frame;
-	private boolean zoomIn;
-	private boolean zoomOut;
 	
-	private static final int MIN_PIXELS = 1;
-
 	public MouseHandler(Visualizador3D frame, Imagen3D panelImagen) {
 		this.frame = frame;
 		this.panelImagen = panelImagen;
@@ -39,15 +33,6 @@ public class MouseHandler extends MouseAdapter {
 		
 	}
 	
-//	@Override
-//	public void mouseClicked(MouseEvent evento){
-//		if(zoomIn){
-//			panelImagen.zoomIn(yPosPressed, xPosPressed);
-//		}else if(zoomOut){
-//			panelImagen.zoomOut(yPosPressed, xPosPressed);
-//		}		
-//	}
-	
 	@Override
 	public void mousePressed(MouseEvent evento){
 		xPos = evento.getX();
@@ -55,7 +40,7 @@ public class MouseHandler extends MouseAdapter {
 		xPosPressed = xPos;
 		yPosPressed = yPos;
 		
-		System.out.println("Presionado " + xPos + " - " + yPos);
+//		System.out.println("Presionado " + xPos + " - " + yPos);
 	}
 	
 	@Override
@@ -72,11 +57,9 @@ public class MouseHandler extends MouseAdapter {
 			// Procesar
 			if(isRightClick(evento)){
 				// Rotar
-				System.out.println("Rotar: " + difX + " - " + difY);
 				panelImagen.rotar(yPosPressed, xPosPressed, difY, difX);
 			}else if(isLeftClick(evento)){
 				// Mover
-				System.out.println("Mover: " + difX + " - " + difY);
 				panelImagen.trasladar(difY, difX);
 			}
 			
@@ -94,7 +77,7 @@ public class MouseHandler extends MouseAdapter {
 		frame.setPosicionActual(evento.getY(), evento.getX());
 	}
 	
-	// Setters
+	// Getters
 	
 	public boolean isLeftClick(MouseEvent evento){
 		return (evento.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK;

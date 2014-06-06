@@ -70,20 +70,27 @@ public class Objeto3D {
 		
 	}
 	
-	public void aplicarTransformacion(){
+	public void aplicarTransformacion(Imagen3D imagen){
 		puntosNuevos = new HashMap<Integer, Punto3D>();
 		
 		Set<Entry<Integer, Punto3D>> pares = puntos.entrySet();
 		for (Entry<Integer, Punto3D> par : pares){
-//			MatrizTransformacion matriz = new MatrizPerspectiva(distancia);
-//			matriz = matriz.producto(matrizAcumulada);
 			
-			puntosNuevos.put(par.getKey(), par.getValue().aplicarTransformacion(matrizAcumulada.getMatriz()));
+			Punto3D puntoT = par.getValue().aplicarTransformacion(matrizAcumulada.getMatriz());
+			
+			if (imagen.isPerspectiva()){
+				MatrizTransformacion matriz = new MatrizPerspectiva(puntoT.getZ());
+//				matriz.imprimir();
+//				System.out.println(puntoT);
+				puntoT = puntoT.aplicarTransformacion(matriz.getMatriz());
+//				System.out.println("Modif: " + puntoPersp);
+			}
+			
+			puntosNuevos.put(par.getKey(), puntoT);
 		}		
 	}
 	
 	public void agregarTransformacion(MatrizTransformacion matriz){
-		matriz.imprimir();
 		matrizAcumulada = matriz.producto(matrizAcumulada);
 	}
 	
@@ -120,7 +127,7 @@ public class Objeto3D {
 
 	public void dibujar(Imagen3D imagen, Graphics g) {
 		// 1) Aplicar transformacion a puntos originales
-		aplicarTransformacion();
+		aplicarTransformacion(imagen);
 		
 		
 		// Obtener elementos

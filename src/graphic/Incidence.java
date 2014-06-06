@@ -9,6 +9,7 @@ import swing.Imagen3D;
 public class Incidence {
 	
 	private int points[];
+	private Punto3D luzPunto;
 
 	public Incidence(int[] points) {
 		super();
@@ -40,13 +41,15 @@ public class Incidence {
 					Punto3D.resta(puntos.get(points[1]), puntos.get(points[2])));
 			
 			// Dibujar solido iluminado
-			Punto3D luzVector = new Punto3D(0, 1, 0);
+			luzPunto = imagen.getLuzPunto();
+			Punto3D objetoPunto = getPuntoPromedio(puntos);
 			
-			Color luz = new Color(250, 200, 100);
-			Color ambiente = new Color(100, 80, 40);
+			Punto3D versorLuz = Punto3D.resta(objetoPunto, luzPunto).versor();
+			
+			Color ambiente = new Color(100, 0, 0);
 			Color objeto = Color.RED;
 			
-			double intensidad = luzVector.productoEscalar(normal.versor());
+			double intensidad = versorLuz.productoEscalar(normal.versor());
 			
 			if(intensidad < -1 || intensidad > 1){
 				System.out.println("Error");
@@ -54,9 +57,7 @@ public class Incidence {
 			
 			if(normal.getZ() > 0 || ! imagen.isBackfaceCulling()){
 				int red = (int) Math.max(0, intensidad * (255 - ambiente.getRed()) * 255 / objeto.getRed()) + ambiente.getRed();
-				int green = (int) Math.max(0, intensidad * (255 - ambiente.getGreen())) + ambiente.getGreen();
-				int blue = (int) Math.max(0, intensidad * (255 - ambiente.getBlue())) + ambiente.getBlue();
-				Color c = new Color(red, green, blue);
+				Color c = new Color(red, 0, 0);
 				
 				g.setColor(c);
 				g.fillPolygon(xPoints, yPoints, nPoints);
@@ -81,6 +82,24 @@ public class Incidence {
 		}
 		
 		return zAcum / cant;
+	}
+	
+	public Punto3D getPuntoPromedio(HashMap<Integer, Punto3D> puntos){
+		int cant = points.length;
+		
+		double xAcum = 0;
+		double yAcum = 0;
+		double zAcum = 0;
+		
+		
+		for(int i = 0; i < cant; i++){
+			Punto3D punto = puntos.get(points[i]);
+			xAcum += punto.getX();
+			yAcum += punto.getY();
+			zAcum += punto.getZ();
+		}
+		
+		return new Punto3D(xAcum / cant, yAcum / cant, zAcum / cant);
 	}
 	
 	public int[] getPoints(){

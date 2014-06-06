@@ -1,6 +1,7 @@
 package swing;
 
 import graphic.Objeto3D;
+import graphic.Punto3D;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -16,32 +17,32 @@ public class Imagen3D extends JPanel {
 	Objeto3D objeto;
 
 	private int vista;
-
 	private double distancia;
 	private boolean backfaceCulling;
+	private boolean perspectiva;
+
+	private Punto3D [] luces = new Punto3D[]{new Punto3D(-1500, 0, 0),
+											 new Punto3D(1500, 0, 0),
+											 new Punto3D(0, 1500, 0),
+											 new Punto3D(0, -1500, 0),
+											 new Punto3D(0, 1500, 0),
+											 new Punto3D(0, 0, 1500),
+											 new Punto3D(0, 0, -1500)};
+
+	private Punto3D luzPunto = luces[0];
+	
 
 	public Imagen3D() {
 		setBorder(BorderFactory.createLineBorder(Color.black));
 	}
 
-	//	    public Dimension getPreferredSize() {
-	//	        return new Dimension(600,550);
-	//	    }
-
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);       
 
+		// Dibujar triangulos
 		if (cargado){	        	
-			// Dibujar triangulos
 			g.setColor(Color.BLUE);
-			objeto.dibujar(this, g);	        	
-
-			//	        	// Dibujar puntos
-			//	        	g.setColor(Color.RED);
-			//	        	for (Punto3D punto : puntos.values()){
-			//	        		g.drawLine(getXtoC(punto.getX()), getYtoF(punto.getY()), getXtoC(punto.getX()) + 3, getYtoF(punto.getY()) + 3);
-			//	        	}
-
+			objeto.dibujar(this, g);
 		}
 	}
 
@@ -127,6 +128,24 @@ public class Imagen3D extends JPanel {
 	public void setBackfaceCulling(boolean backfaceCulling) {
 		this.backfaceCulling = backfaceCulling;
 		
+		updateUI();
+	}
+
+	public void setPerspectiva(boolean perspectiva) {
+		this.perspectiva = perspectiva;
+		
+	}
+
+	public boolean isPerspectiva() {
+		return perspectiva;
+	}
+
+	public Punto3D getLuzPunto() {
+		return luzPunto;
+	}
+	
+	public void setLuzPunto(int luzIndex){
+		this.luzPunto = luces[luzIndex];
 		updateUI();
 	}
 }
