@@ -163,7 +163,7 @@ public class Objeto3D {
 			while((linea = br.readLine()) != null){
 				if (linea.indexOf(ELEMENT_GROUPS) != -1){
 					int cantElementGroups = Integer.parseInt(readLine());
-					System.out.println("Found " + cantElementGroups + " ELEMENT GROUPS. ");
+//					System.out.println("Found " + cantElementGroups + " ELEMENT GROUPS. ");
 					for(int i = 1; i <= cantElementGroups; i++){
 						String elemGroup = readLine();
 //						System.out.println("Grupo " + i + ":" + elemGroup);
@@ -173,7 +173,7 @@ public class Objeto3D {
 //							System.out.println("Grupo correcto de " + groupCant + " elementos de tipo " + tokensElemGroup[2]);
 							grupos.add(new ElementGroup(tokensElemGroup[2], groupCant));
 						}else{
-							System.out.println("ERROR al parsear grupo de elementos");
+//							System.out.println("ERROR al parsear grupo de elementos");
 						}
 					}
 				}else if (linea.indexOf(INCIDENCE) != -1){
@@ -199,7 +199,7 @@ public class Objeto3D {
 								
 								group.agregarElemento(new Incidence(puntos));
 							}else{
-								System.out.println("ERROR al parsear elementos");
+//								System.out.println("ERROR al parsear elementos");
 							}
 						}
 						
@@ -219,7 +219,7 @@ public class Objeto3D {
 							
 							puntos.put(Integer.parseInt(tokensCoordenadas[0]), new Punto3D(x, y, z));
 						}else{
-							System.out.println("ERROR: Coordenadas 2D no soportadas");
+//							System.out.println("ERROR: Coordenadas 2D no soportadas");
 						}
 					}
 
@@ -227,7 +227,7 @@ public class Objeto3D {
 				}else if (linea.equals("")){
 					
 				}else{
-					System.out.println("ERROR: Linea no parseada");
+//					System.out.println("ERROR: Linea no parseada");
 				}
 			}
 			
@@ -244,7 +244,7 @@ public class Objeto3D {
 			line = br.readLine().trim();
 			
 			while (line != null && line.equals("")){
-				System.out.println("Salteando linea en blanco");
+//				System.out.println("Salteando linea en blanco");
 				line = br.readLine().trim();
 			}
 		} catch (IOException e) {

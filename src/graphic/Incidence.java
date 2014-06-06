@@ -52,7 +52,7 @@ public class Incidence {
 			double intensidad = versorLuz.productoEscalar(normal.versor());
 			
 			if(intensidad < -1 || intensidad > 1){
-				System.out.println("Error");
+//				System.out.println("Error");
 			}
 			
 			if(normal.getZ() > 0 || ! imagen.isBackfaceCulling()){

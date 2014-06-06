@@ -40,8 +40,7 @@ public class Imagen3D extends JPanel {
 		super.paintComponent(g);       
 
 		// Dibujar triangulos
-		if (cargado){	        	
-			g.setColor(Color.BLUE);
+		if (cargado){
 			objeto.dibujar(this, g);
 		}
 	}
@@ -147,5 +146,14 @@ public class Imagen3D extends JPanel {
 	public void setLuzPunto(int luzIndex){
 		this.luzPunto = luces[luzIndex];
 		updateUI();
+	}
+
+	public void setObjeto(Objeto3D objeto) {
+		this.objeto = objeto;
+		
+	}
+
+	public void setCargado(boolean cargado) {
+		this.cargado = cargado;		
 	}
 }

@@ -1,7 +1,7 @@
 package swing;
 
-import filter.FiltroArchivoSUR;
 import filter.FiltroArchivoPNG;
+import filter.FiltroArchivoSUR;
 import graphic.Objeto3D;
 
 import java.awt.Color;
@@ -9,18 +9,21 @@ import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -31,25 +34,16 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import matriz.MatrizTransformacion;
-
-import javax.swing.KeyStroke;
-
-import java.awt.event.KeyEvent;
-import java.awt.event.InputEvent;
-import java.awt.image.BufferedImage;
-
-import javax.swing.JSeparator;
-import javax.swing.ImageIcon;
-
-import java.awt.Toolkit;
 
 public class Visualizador3D {
 
@@ -65,14 +59,10 @@ public class Visualizador3D {
 	private JComboBox comboVista;
 	private JMenu mnAyuda;
 	private JMenuItem mntmAcercaDe;
-	private JCheckBox chckbxPerspectiva;
 	private JTable table;
 	private JButton btnAplicar;
 	private JPanel panelTransformacion;
-	private JSpinner spinPerspectiva;
-	private JLabel lblDistancia;
 	private JPanel panelVisualizacion;
-	private JPanel panelPerspDistancia;
 	private JCheckBox chckbxBackfaceCulling;
 	private JPanel panelLuzAmbiente;
 	private JPanel panelPosicion;
@@ -104,10 +94,9 @@ public class Visualizador3D {
 	 */
 	public Visualizador3D() {
 		
-		/* Funcionalidad
+		/* Funcionalidad a agregar
 		 *
 		 * 1) Perspectiva
-		 * 6) tamaño
 		 * 5) Detectar profundidad al rotar
 		 * 8) Cambiar punteros
 		 * 
@@ -141,6 +130,7 @@ public class Visualizador3D {
 		comboLuz.setModel(new DefaultComboBoxModel(new String[] {"Izquierda", "Derecha", "Arriba", "Abajo", "Frente", "Trasera"}));
 		comboLuz.setSelectedIndex(0);
 		GridBagConstraints gbc_comboLuz = new GridBagConstraints();
+		gbc_comboLuz.insets = new Insets(5, 5, 5, 5);
 		gbc_comboLuz.fill = GridBagConstraints.HORIZONTAL;
 		gbc_comboLuz.gridx = 0;
 		gbc_comboLuz.gridy = 0;
@@ -284,7 +274,7 @@ public class Visualizador3D {
 		frmVisualizadord = new JFrame();
 		frmVisualizadord.setIconImage(Toolkit.getDefaultToolkit().getImage(Visualizador3D.class.getResource("/icon/icon.png")));
 		frmVisualizadord.setTitle("Visualizador 3D");
-		frmVisualizadord.setBounds(50, 50, 800, 700);
+		frmVisualizadord.setBounds(50, 20, 1200, 700);
 		frmVisualizadord.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		GridBagLayout gridBagLayout = new GridBagLayout();
@@ -319,7 +309,7 @@ public class Visualizador3D {
 		
 		GridBagLayout gbl_panelOpciones = new GridBagLayout();
 		gbl_panelOpciones.columnWidths = new int[]{48, 0};
-		gbl_panelOpciones.rowHeights = new int[]{29, 0, 0, 0, 0};
+		gbl_panelOpciones.rowHeights = new int[]{36, 0, 0, 0, 0};
 		gbl_panelOpciones.columnWeights = new double[]{1.0, Double.MIN_VALUE};
 		gbl_panelOpciones.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panelOpciones.setLayout(gbl_panelOpciones);
@@ -334,9 +324,9 @@ public class Visualizador3D {
 		panelOpciones.add(panelVisualizacion, gbc_panelVisualizacion);
 		GridBagLayout gbl_panelVisualizacion = new GridBagLayout();
 		gbl_panelVisualizacion.columnWidths = new int[]{48, 0};
-		gbl_panelVisualizacion.rowHeights = new int[]{29, 0, 0, 0, 0};
+		gbl_panelVisualizacion.rowHeights = new int[]{29, 0, 0};
 		gbl_panelVisualizacion.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_panelVisualizacion.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_panelVisualizacion.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
 		panelVisualizacion.setLayout(gbl_panelVisualizacion);
 		
 		comboVista = new JComboBox();
@@ -365,53 +355,10 @@ public class Visualizador3D {
 		});
 		GridBagConstraints gbc_chckbxBackfaceCulling = new GridBagConstraints();
 		gbc_chckbxBackfaceCulling.anchor = GridBagConstraints.WEST;
-		gbc_chckbxBackfaceCulling.insets = new Insets(0, 10, 5, 5);
+		gbc_chckbxBackfaceCulling.insets = new Insets(0, 10, 0, 0);
 		gbc_chckbxBackfaceCulling.gridx = 0;
 		gbc_chckbxBackfaceCulling.gridy = 1;
 		panelVisualizacion.add(chckbxBackfaceCulling, gbc_chckbxBackfaceCulling);
-		
-		chckbxPerspectiva = new JCheckBox("Perspectiva");
-		chckbxPerspectiva.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent item) {
-				panelImagen.setPerspectiva(item.getStateChange() == ItemEvent.SELECTED);
-			}
-		});
-		GridBagConstraints gbc_chckbxPerspectiva = new GridBagConstraints();
-		gbc_chckbxPerspectiva.anchor = GridBagConstraints.WEST;
-		gbc_chckbxPerspectiva.insets = new Insets(0, 10, 5, 0);
-		gbc_chckbxPerspectiva.gridx = 0;
-		gbc_chckbxPerspectiva.gridy = 2;
-		panelVisualizacion.add(chckbxPerspectiva, gbc_chckbxPerspectiva);
-		chckbxPerspectiva.setToolTipText("Ver en Perspectiva");
-		
-		panelPerspDistancia = new JPanel();
-		GridBagConstraints gbc_panelPerspDistancia = new GridBagConstraints();
-		gbc_panelPerspDistancia.fill = GridBagConstraints.BOTH;
-		gbc_panelPerspDistancia.gridx = 0;
-		gbc_panelPerspDistancia.gridy = 3;
-		panelVisualizacion.add(panelPerspDistancia, gbc_panelPerspDistancia);
-		GridBagLayout gbl_panelPerspDistancia = new GridBagLayout();
-		gbl_panelPerspDistancia.columnWidths = new int[]{48, 0, 0};
-		gbl_panelPerspDistancia.rowHeights = new int[]{0, 0};
-		gbl_panelPerspDistancia.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
-		gbl_panelPerspDistancia.rowWeights = new double[]{0.0, Double.MIN_VALUE};
-		panelPerspDistancia.setLayout(gbl_panelPerspDistancia);
-		
-		lblDistancia = new JLabel("Distancia");
-		GridBagConstraints gbc_lblDistancia = new GridBagConstraints();
-		gbc_lblDistancia.insets = new Insets(0, 10, 0, 5);
-		gbc_lblDistancia.gridx = 0;
-		gbc_lblDistancia.gridy = 0;
-		panelPerspDistancia.add(lblDistancia, gbc_lblDistancia);
-		
-		spinPerspectiva = new JSpinner();
-		GridBagConstraints gbc_spinPerspectiva = new GridBagConstraints();
-		gbc_spinPerspectiva.insets = new Insets(0, 0, 0, 5);
-		gbc_spinPerspectiva.anchor = GridBagConstraints.WEST;
-		gbc_spinPerspectiva.gridx = 1;
-		gbc_spinPerspectiva.gridy = 0;
-		panelPerspDistancia.add(spinPerspectiva, gbc_spinPerspectiva);
-		spinPerspectiva.setModel(new SpinnerNumberModel(0.0, 0.0, 3.0, 0.1));
 		
 		initMenu();
 		
@@ -498,8 +445,8 @@ public class Visualizador3D {
 		g.centrar(1200, 680);
 		
 		// Cargar objeto
-		panelImagen.objeto = g;
-		panelImagen.cargado = true;
+		panelImagen.setObjeto(g);
+		panelImagen.setCargado(true);
 		panelImagen.updateUI();
 		
 		// Agregar Mouse Listeners

@@ -8,7 +8,7 @@ public class FiltroArchivoSUR extends FileFilter {
 
 	@Override
 	public boolean accept(File f) {
-		return f.getName().endsWith("sur") || f.isDirectory();
+		return f.getName().toLowerCase().endsWith("sur") || f.isDirectory();
 	}
 
 	@Override
