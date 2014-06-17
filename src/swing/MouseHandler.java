@@ -63,7 +63,7 @@ public class MouseHandler extends MouseAdapter {
 			// Procesar
 			if(isRightClick(evento)){
 				// Rotar
-				panelImagen.rotar(yPosPressed, xPosPressed, difY, difX);
+				panelImagen.rotar(difY, difX);
 			}else if(isLeftClick(evento)){
 				// Mover
 				panelImagen.trasladar(difY, difX);

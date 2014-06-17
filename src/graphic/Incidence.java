@@ -24,12 +24,17 @@ public class Incidence {
 		// Calcular vertices
 		for(int i = 0; i < points.length; i++){
 			Punto3D punto = puntos.get(points[i]);
-			xPoints[i] = imagen.getXtoC(punto.getX());
-			yPoints[i] = imagen.getYtoF(punto.getY());
+			xPoints[i] = imagen.mapToScreenX(punto.getX());
+			yPoints[i] = imagen.mapToScreenY(punto.getY());
 		}
 
 		int vista = imagen.getVista();
-		if (vista == Objeto3D.VISTA_TRIANGULOS){
+		if (vista == Objeto3D.VISTA_PUNTOS){
+			g.setColor(Color.RED);
+			for(int i = 0; i < points.length; i++){
+				g.drawLine(xPoints[i], yPoints[i], xPoints[i], yPoints[i]);
+			}
+		}else if (vista == Objeto3D.VISTA_TRIANGULOS){
 			// Dibujar triangulacion
 			g.setColor(Color.RED);
 			g.drawPolygon(xPoints, yPoints, nPoints);
@@ -45,23 +50,18 @@ public class Incidence {
 			
 			Punto3D versorLuz = Punto3D.resta(objetoPunto, luzPunto).versor();
 			
-			Color ambiente = new Color(100, 0, 0);
-			Color objeto = Color.RED;
+			Color ambiente = imagen.getAmbientColor();
+			Color objeto = imagen.getObjectColor();
 			
 			double intensidad = versorLuz.productoEscalar(versorNormal);
 			
 			if(versorNormal.getZ() > 0 || !imagen.isBackfaceCulling()){
-				int red = (int) (0.7 * Math.max(0, intensidad * objeto.getRed()) + 0.3 * ambiente.getRed());
-				int green = (int) (0.7 * Math.max(0, intensidad * objeto.getGreen()) + 0.3 * ambiente.getGreen());
-				int blue = (int) (0.7 * Math.max(0, intensidad * objeto.getBlue()) + 0.3 * ambiente.getBlue());
+				int red = (int) (0.8 * Math.max(0, intensidad * objeto.getRed()) + 0.2 * ambiente.getRed());
+				int green = (int) (0.8 * Math.max(0, intensidad * objeto.getGreen()) + 0.2 * ambiente.getGreen());
+				int blue = (int) (0.8 * Math.max(0, intensidad * objeto.getBlue()) + 0.2 * ambiente.getBlue());
 					
 				g.setColor(new Color(red, green, blue));
 				g.fillPolygon(xPoints, yPoints, nPoints);
-			}
-		}else if (vista == Objeto3D.VISTA_PUNTOS){
-			g.setColor(Color.RED);
-			for(int i = 0; i < points.length; i++){
-				g.drawLine(xPoints[i], yPoints[i], xPoints[i], yPoints[i]);
 			}
 		}
 		

@@ -1,6 +1,5 @@
 package graphic;
 
-import java.awt.Graphics;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,20 +8,15 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.StringTokenizer;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 import matriz.MatrizEscala;
-import matriz.MatrizIdentidad;
 import matriz.MatrizPerspectiva;
-import matriz.MatrizRotacionX;
-import matriz.MatrizRotacionY;
-import matriz.MatrizRotacionZ;
 import matriz.MatrizTransformacion;
 import matriz.MatrizTraslacion;
-import swing.Imagen3D;
 
 public class Objeto3D {
 
@@ -39,133 +33,16 @@ public class Objeto3D {
 	private HashMap<Integer, Punto3D> puntos = new HashMap<Integer, Punto3D>(); // Puntos originales
 	
 	private HashMap<Integer, Punto3D> puntosNuevos = new HashMap<Integer, Punto3D>(); // Puntos con transformacion
-	private MatrizTransformacion matrizAcumulada = new MatrizIdentidad(); // Matriz de transformaciones acumuladas
+//	private MatrizTransformacion matrizAcumulada = new MatrizIdentidad(); // Matriz de transformaciones acumuladas
 	
 	private FileReader fr;
 	private BufferedReader br;
-	private Punto3D puntoMinimo;
-	private Punto3D puntoMaximo;
-	private Punto3D puntoCentro;
+	private Punto3D centro;
+	private HashMap<Integer, Punto3D> puntosNoLineal;
 	
 	public Objeto3D(File f){
 		loadSUR(f);
 	}
-	
-//	public void aplicarTransformacion(double[][] M){
-//		HashMap<Integer, Punto3D> puntosNuevos = new HashMap<Integer, Punto3D>();
-//
-//		Set<Entry<Integer, Punto3D>> pares = puntos.entrySet();
-//		for (Entry<Integer, Punto3D> par : pares){
-//			puntosNuevos.put(par.getKey(), par.getValue().aplicarTransformacion(M));
-//		}
-//
-//		puntos = puntosNuevos;
-//
-//	}
-
-	public void centrar(int width, int heigth){
-		double xMin = 10000, xMax = -10000, yMin = 10000, yMax = -10000;
-		
-		// Obtener minimos y maximos
-		for (Punto3D punto : puntos.values()){
-			double x = punto.getX();
-			double y = punto.getY();
-			
-			if (xMin > x)
-				xMin = x;
-			
-			if (xMax < x)
-				xMax = x;
-			
-			if (yMin > y)
-				yMin = y;
-			
-			if (yMax < y)
-				yMax = y;
-		}
-		
-		// Realizar traslacion al centro
-		double tx = (double) width / 2 - (xMax - xMin) / 2;
-		double ty = (double) heigth / 2 - (yMax - yMin) / 2;
-		
-		trasladar(tx, ty, 0);
-		
-	}
-	
-	public void aplicarTransformacion(Imagen3D imagen){
-		puntosNuevos = new HashMap<Integer, Punto3D>();
-		
-		Set<Entry<Integer, Punto3D>> pares = puntos.entrySet();
-		for (Entry<Integer, Punto3D> par : pares){
-			
-			Punto3D puntoT = par.getValue().aplicarTransformacion(matrizAcumulada.getMatriz());
-			
-			if (imagen.isPerspectiva()){
-				MatrizTransformacion matriz = new MatrizPerspectiva(puntoT.getZ());
-//				matriz.imprimir();
-//				System.out.println(puntoT);
-				puntoT = puntoT.aplicarTransformacion(matriz.getMatriz());
-			}
-			
-			puntosNuevos.put(par.getKey(), puntoT);
-		}		
-	}
-	
-	public void agregarTransformacion(MatrizTransformacion matriz){
-		matrizAcumulada = matriz.producto(matrizAcumulada);
-	}
-	
-	// (Tx, Ty, Tz) Vector de traslacion
-	public void trasladar(double tx, double ty, double tz){
-		agregarTransformacion(new MatrizTraslacion(tx, ty, tz));
-	}
-	
-	// (Sx, Sy, Sz) Vector de escala
-	public void escala(double sx, double sy, double sz){		
-		agregarTransformacion(new MatrizEscala(sx, sy, sz));
-	}
-	
-	// s = escala
-	public void escalaIsotropica(double s){
-		agregarTransformacion(new MatrizEscala(s));
-	}
-	
-	// Rotacion en eje X
-	// o = Angulo en radianes [0, 2pi]
-	public void rotacionX(double o){
-		agregarTransformacion(new MatrizRotacionX(o));
-	}
-	
-	// Rotacion en eje Y
-	public void rotacionY(double o){		
-		agregarTransformacion(new MatrizRotacionY(o));
-	}
-	
-	// Rotacion en eje Z.
-	public void rotacionZ(double o){
-		agregarTransformacion(new MatrizRotacionZ(o));
-	}
-
-	public void dibujar(Imagen3D imagen, Graphics g) {
-		// 1) Aplicar transformacion a puntos originales
-		aplicarTransformacion(imagen);
-		
-		// 2) Ordenar elementos segun valor medio de Z
-		Collections.sort(elementos, new Comparator<Incidence>() {
-			public int compare(Incidence elem1, Incidence elem2) {
-				Double z1 = elem1.getZPromedio(puntosNuevos);
-				Double z2 = elem2.getZPromedio(puntosNuevos);
-				
-				return z2.compareTo(z1);
-			}
-		});
-		
-		// 3) Dibujar los elementos en pantalla
-		for (Incidence elemento : elementos){
-			elemento.dibujar(imagen, g, puntosNuevos);
-		}
-		
-	}	
 	
 	// Cargar SUR (Verificar espacios entre coordenadas)
 	public void loadSUR(File archivo){
@@ -173,12 +50,12 @@ public class Objeto3D {
 			fr = new FileReader(archivo);
 			br = new BufferedReader(fr);
 			
-			double xMin;
-			double xMax;
-			double yMin;
-			double yMax;
-			double zMin;
-			double zMax;
+			double xMin = Double.MAX_VALUE;
+			double xMax = Double.MIN_VALUE;
+			double yMin = Double.MAX_VALUE;
+			double yMax = Double.MIN_VALUE;
+			double zMin = Double.MAX_VALUE;
+			double zMax = Double.MIN_VALUE;
 
 			// Lectura del fichero
 			String linea;
@@ -230,15 +107,7 @@ public class Objeto3D {
 						}
 					}
 					
-				}else if (linea.indexOf(COORDINATES) != -1){
-					// Recorrer coordenadas de puntos
-		            xMin = Double.MAX_VALUE;
-		            xMax = Double.MIN_VALUE;
-		            yMin = Double.MAX_VALUE;
-		            yMax = Double.MIN_VALUE;
-		            zMin = Double.MAX_VALUE;
-		            zMax = Double.MIN_VALUE;
-					
+				}else if (linea.indexOf(COORDINATES) != -1){					
 					int cantCoordenadas = Integer.parseInt(readLine());					
 					
 					for(int i = 0; i < cantCoordenadas; i++){
@@ -265,11 +134,9 @@ public class Objeto3D {
 
 					System.out.println("ESTRUCTURA: Encontrados " + puntos.size() + " points.");
 					
-					puntoMinimo = new Punto3D(xMin, yMin, zMin);
-					puntoMaximo = new Punto3D(xMax, yMax, zMax);
-					puntoCentro = new Punto3D((xMin + xMax) / 2, (yMin + yMax) / 2, (zMin + zMax) / 2);
+					centro = new Punto3D((xMin + xMax) / 2, (yMin + yMax) / 2, (zMin + zMax) / 2);
 					
-					System.out.println("Centro: " + puntoCentro);
+					System.out.println("Centro: " + centro);
 					
 				}/*else if (linea.equals("")){
 					
@@ -278,6 +145,16 @@ public class Objeto3D {
 				}*/
 			}
 			
+			puntosNuevos = (HashMap<Integer, Punto3D>) puntos.clone();
+			
+			// Centrar
+			aplicarTransformacion(new MatrizTraslacion(- centro.getX(), - centro.getY(), - centro.getZ()));
+			
+			// Ajustar tamaño a ventana
+			double ratio = 300 / Math.max((xMax - xMin) / 2, (yMax - yMin) / 2);
+			aplicarTransformacion(new MatrizEscala(ratio));
+			
+			System.out.println("Zs: " + zMin + " - " + zMax);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -300,4 +177,48 @@ public class Objeto3D {
 		return line;
 	}
 	
+	public void aplicarTransformacion(MatrizTransformacion matriz){
+		HashMap<Integer, Punto3D> puntosNuevos = new HashMap<Integer, Punto3D>();
+
+		Set<Entry<Integer, Punto3D>> pares = this.puntosNuevos.entrySet();
+		for (Entry<Integer, Punto3D> par : pares){
+			puntosNuevos.put(par.getKey(), par.getValue().aplicarTransformacion(matriz.getMatriz()));
+		}
+
+		this.puntosNuevos = puntosNuevos;
+
+		centro = centro.aplicarTransformacion(matriz.getMatriz());		
+	}
+
+	public Vector<Incidence> getElementos() {
+		final HashMap<Integer, Punto3D> puntosNuevos = new HashMap<Integer, Punto3D>(); // Puntos con transformacion
+		
+		
+		Set<Entry<Integer, Punto3D>> pares = this.puntosNuevos.entrySet();
+		for (Entry<Integer, Punto3D> par : pares){
+			puntosNuevos.put(par.getKey(), par.getValue().aplicarTransformacion(new MatrizPerspectiva(par.getValue().getZ()).getMatriz()));
+		}
+		
+		puntosNoLineal = puntosNuevos;
+		
+		// Ordenar elementos segun valor medio de Z
+		Collections.sort(elementos, new Comparator<Incidence>() {
+			public int compare(Incidence elem1, Incidence elem2) {
+				Double z1 = elem1.getZPromedio(puntosNuevos);
+				Double z2 = elem2.getZPromedio(puntosNuevos);
+				
+				return z2.compareTo(z1);
+			}
+		});
+		
+		return elementos;		
+	}
+	
+	public HashMap<Integer, Punto3D> getPuntos(){
+		return puntosNoLineal;
+	}
+	
+	public Punto3D getCentro(){
+		return centro;
+	}
 }
