@@ -97,6 +97,8 @@ public class Visualizador3D {
 		/* Funcionalidad a agregar
 		 *
 		 * 1) Perspectiva
+		 * 2) Ajustar tamaño, calcular centro y actualizar
+		 * 3) Rotar sobre el centro
 		 * 5) Detectar profundidad al rotar
 		 * 8) Cambiar punteros
 		 * 
@@ -436,24 +438,11 @@ public class Visualizador3D {
 	}
 
 	protected void cargar(File f) {
-		Objeto3D g = new Objeto3D();
+		// Parsear archivo *.sur para cargar estructura
+		Objeto3D obj = new Objeto3D(f);
 		
-		// 1) Parsear archivo *.sur para cargar estructura
-		g.loadSUR(f);
-		
-		// 2) Centrar objeto 3D
-		g.centrar(1200, 680);
-		
-		// Cargar objeto
-		panelImagen.setObjeto(g);
-		panelImagen.setCargado(true);
-		panelImagen.updateUI();
-		
-		// Agregar Mouse Listeners
-		panelImagen.addMouseListener(mouseHandler);
-		panelImagen.addMouseMotionListener(mouseHandler);
-		panelImagen.addMouseWheelListener(mouseHandler);
-		
+		// Mostrar objeto en pantalla
+		panelImagen.setObjeto(obj);		
 	}
 	
 	protected void abrirArchivo() {

@@ -9,7 +9,6 @@ import swing.Imagen3D;
 public class Incidence {
 	
 	private int points[];
-	private Punto3D luzPunto;
 
 	public Incidence(int[] points) {
 		super();
@@ -33,15 +32,15 @@ public class Incidence {
 		if (vista == Objeto3D.VISTA_TRIANGULOS){
 			// Dibujar triangulacion
 			g.setColor(Color.RED);
-			g.drawPolygon(xPoints, yPoints, nPoints);			
-		}else if (vista == Objeto3D.VISTA_SOLIDO){
+			g.drawPolygon(xPoints, yPoints, nPoints);
+		}else if (vista == Objeto3D.VISTA_SOLIDO){			
 			// Calcular vector normal
-			Punto3D normal = Punto3D.productoVectorial(
+			Punto3D versorNormal = Punto3D.productoVectorial(
 					Punto3D.resta(puntos.get(points[0]), puntos.get(points[1])), 
-					Punto3D.resta(puntos.get(points[1]), puntos.get(points[2])));
+					Punto3D.resta(puntos.get(points[1]), puntos.get(points[2]))).versor();
 			
 			// Dibujar solido iluminado
-			luzPunto = imagen.getLuzPunto();
+			Punto3D luzPunto = imagen.getLuzPunto();
 			Punto3D objetoPunto = getPuntoPromedio(puntos);
 			
 			Punto3D versorLuz = Punto3D.resta(objetoPunto, luzPunto).versor();
@@ -49,17 +48,14 @@ public class Incidence {
 			Color ambiente = new Color(100, 0, 0);
 			Color objeto = Color.RED;
 			
-			double intensidad = versorLuz.productoEscalar(normal.versor());
+			double intensidad = versorLuz.productoEscalar(versorNormal);
 			
-			if(intensidad < -1 || intensidad > 1){
-//				System.out.println("Error");
-			}
-			
-			if(normal.getZ() > 0 || ! imagen.isBackfaceCulling()){
-				int red = (int) Math.max(0, intensidad * (255 - ambiente.getRed()) * 255 / objeto.getRed()) + ambiente.getRed();
-				Color c = new Color(red, 0, 0);
-				
-				g.setColor(c);
+			if(versorNormal.getZ() > 0 || !imagen.isBackfaceCulling()){
+				int red = (int) (0.7 * Math.max(0, intensidad * objeto.getRed()) + 0.3 * ambiente.getRed());
+				int green = (int) (0.7 * Math.max(0, intensidad * objeto.getGreen()) + 0.3 * ambiente.getGreen());
+				int blue = (int) (0.7 * Math.max(0, intensidad * objeto.getBlue()) + 0.3 * ambiente.getBlue());
+					
+				g.setColor(new Color(red, green, blue));
 				g.fillPolygon(xPoints, yPoints, nPoints);
 			}
 		}else if (vista == Objeto3D.VISTA_PUNTOS){
@@ -85,12 +81,11 @@ public class Incidence {
 	}
 	
 	public Punto3D getPuntoPromedio(HashMap<Integer, Punto3D> puntos){
-		int cant = points.length;
+		double cant = points.length;
 		
 		double xAcum = 0;
 		double yAcum = 0;
-		double zAcum = 0;
-		
+		double zAcum = 0;		
 		
 		for(int i = 0; i < cant; i++){
 			Punto3D punto = puntos.get(points[i]);

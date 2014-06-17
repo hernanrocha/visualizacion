@@ -13,9 +13,9 @@ public class Imagen3D extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	boolean cargado;
+	private boolean cargado;
 	Objeto3D objeto;
-
+	
 	private int vista;
 	private double distancia;
 	private boolean backfaceCulling;
@@ -31,18 +31,8 @@ public class Imagen3D extends JPanel {
 
 	private Punto3D luzPunto = luces[0];
 	
-
 	public Imagen3D() {
 		setBorder(BorderFactory.createLineBorder(Color.black));
-	}
-
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);       
-
-		// Dibujar triangulos
-		if (cargado){
-			objeto.dibujar(this, g);
-		}
 	}
 
 	public int getXtoC(double x){
@@ -80,7 +70,6 @@ public class Imagen3D extends JPanel {
 	}
 
 	public void zoomIn(int f, int c){
-		System.out.println(f + "-" + c);
 		// Mover a centro de coordenadas
 		double tx = getCtoX(c), ty = getFtoY(f);
 
@@ -131,8 +120,7 @@ public class Imagen3D extends JPanel {
 	}
 
 	public void setPerspectiva(boolean perspectiva) {
-		this.perspectiva = perspectiva;
-		
+		this.perspectiva = perspectiva;		
 	}
 
 	public boolean isPerspectiva() {
@@ -151,9 +139,25 @@ public class Imagen3D extends JPanel {
 	public void setObjeto(Objeto3D objeto) {
 		this.objeto = objeto;
 		
+		setCargado(true);
+		updateUI();
 	}
 
 	public void setCargado(boolean cargado) {
 		this.cargado = cargado;		
+	}
+	
+	public boolean isCargado(){
+		return cargado;
+	}
+	
+	@Override
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);       
+
+		// Dibujar triangulos
+		if (cargado){
+			objeto.dibujar(this, g);
+		}
 	}
 }

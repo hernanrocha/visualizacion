@@ -18,11 +18,19 @@ public class MouseHandler extends MouseAdapter {
 	
 	public MouseHandler(Visualizador3D frame, Imagen3D panelImagen) {
 		this.frame = frame;
-		this.panelImagen = panelImagen;
+		this.panelImagen = panelImagen;		
+
+		// Add Mouse Handler
+		panelImagen.addMouseListener(this);
+		panelImagen.addMouseMotionListener(this);
+		panelImagen.addMouseWheelListener(this);
 	}
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent evento){
+		if(!panelImagen.isCargado())
+			return;
+		
 		double sentido = evento.getPreciseWheelRotation();
 		
 		if(sentido < 0){
@@ -40,15 +48,13 @@ public class MouseHandler extends MouseAdapter {
 		xPosPressed = xPos;
 		yPosPressed = yPos;
 		
-//		System.out.println("Presionado " + xPos + " - " + yPos);
 	}
 	
 	@Override
 	public void mouseDragged(MouseEvent evento){
-		
 		long newTime = System.currentTimeMillis();
 		
-		if(newTime - oldTime  > REFRESH_PERIOD){
+		if(panelImagen.isCargado() && newTime - oldTime  > REFRESH_PERIOD){
 			
 			oldTime = newTime;			
 			int difX = evento.getX() - xPos;
