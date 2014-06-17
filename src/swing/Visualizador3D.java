@@ -50,14 +50,11 @@ import java.awt.Font;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
-import com.sun.javafx.font.Disposer;
-
 public class Visualizador3D {
 
 	private JFrame frmVisualizadord;
 	private Imagen3D panelImagen;
 	private JPanel panelOpciones;
-	private MouseHandler mouseHandler;
 	private JMenuBar menuBar;
 	private JMenu mnArchivo;
 	private JMenuItem mntmCargarArchivo;
@@ -88,12 +85,12 @@ public class Visualizador3D {
 	private JLabel label_3;
 	private JSpinner spinObjBlue;
 	private JPanel panelAmbColor;
-	private JLabel label_1;
+	private JLabel labelAmbRojo;
 	private JSpinner spinAmbRed;
 	private JLabel lblAmbMuestra;
-	private JLabel label_5;
+	private JLabel labelAmbGreen;
 	private JSpinner spinAmbGreen;
-	private JLabel label_6;
+	private JLabel labelAmbBlue;
 	private JSpinner spinAmbBlue;
 	private JComboBox comboBox;
 	
@@ -103,6 +100,7 @@ public class Visualizador3D {
 			new File("sur/hebe.sur"),
 			new File("sur/misil.sur"),
 			new File("sur/torus.sur")};
+	
 	/**
 	 * Launch the application.
 	 */
@@ -123,22 +121,12 @@ public class Visualizador3D {
 	 * Create the application.
 	 */
 	public Visualizador3D() {
-		
-		/* Funcionalidad a agregar
-		 *
-		 * 1) Perspectiva
-		 * 8) Cambiar punteros
-		 * 9) Cambiar color de objeto / ambiente
-		 * 11) Transformaciones no lineales?
-		 * 
-		 */
-
 		initialize();
 		
 		panelObjColor = new JPanel();
 		panelObjColor.setBorder(new TitledBorder(null, "Objeto", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_panelObjColor = new GridBagConstraints();
-		gbc_panelObjColor.insets = new Insets(0, 0, 5, 0);
+		gbc_panelObjColor.insets = new Insets(5, 5, 0, 5);
 		gbc_panelObjColor.gridx = 0;
 		gbc_panelObjColor.gridy = 0;
 		panelOpciones.add(panelObjColor, gbc_panelObjColor);
@@ -153,7 +141,7 @@ public class Visualizador3D {
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
 		gbc_comboBox.gridwidth = 3;
-		gbc_comboBox.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox.insets = new Insets(5, 5, 5, 5);
 		gbc_comboBox.gridx = 0;
 		gbc_comboBox.gridy = 0;
 		panelObjColor.add(comboBox, gbc_comboBox);
@@ -173,7 +161,7 @@ public class Visualizador3D {
 		label.setFont(new Font("Arial", Font.BOLD, 13));
 		GridBagConstraints gbc_label = new GridBagConstraints();
 		gbc_label.anchor = GridBagConstraints.EAST;
-		gbc_label.insets = new Insets(0, 0, 5, 5);
+		gbc_label.insets = new Insets(5, 5, 5, 5);
 		gbc_label.gridx = 0;
 		gbc_label.gridy = 1;
 		panelObjColor.add(label, gbc_label);
@@ -188,13 +176,14 @@ public class Visualizador3D {
 		spinObjRed.setToolTipText("Rojo");
 		GridBagConstraints gbc_spinObjRed = new GridBagConstraints();
 		gbc_spinObjRed.anchor = GridBagConstraints.WEST;
-		gbc_spinObjRed.insets = new Insets(0, 0, 5, 5);
+		gbc_spinObjRed.insets = new Insets(5, 0, 5, 5);
 		gbc_spinObjRed.gridx = 1;
 		gbc_spinObjRed.gridy = 1;
 		panelObjColor.add(spinObjRed, gbc_spinObjRed);
 		
 		lblObjMuestra = new JLabel("");
 		GridBagConstraints gbc_lblObjMuestra = new GridBagConstraints();
+		gbc_lblObjMuestra.insets = new Insets(5, 0, 5, 5);
 		gbc_lblObjMuestra.weighty = 40.0;
 		gbc_lblObjMuestra.weightx = 40.0;
 		gbc_lblObjMuestra.fill = GridBagConstraints.BOTH;
@@ -207,7 +196,7 @@ public class Visualizador3D {
 		label_2.setFont(new Font("Arial", Font.BOLD, 13));
 		GridBagConstraints gbc_label_2 = new GridBagConstraints();
 		gbc_label_2.anchor = GridBagConstraints.EAST;
-		gbc_label_2.insets = new Insets(0, 0, 5, 5);
+		gbc_label_2.insets = new Insets(0, 5, 5, 5);
 		gbc_label_2.gridx = 0;
 		gbc_label_2.gridy = 2;
 		panelObjColor.add(label_2, gbc_label_2);
@@ -231,7 +220,7 @@ public class Visualizador3D {
 		label_3.setFont(new Font("Arial", Font.BOLD, 13));
 		GridBagConstraints gbc_label_3 = new GridBagConstraints();
 		gbc_label_3.anchor = GridBagConstraints.EAST;
-		gbc_label_3.insets = new Insets(0, 0, 0, 5);
+		gbc_label_3.insets = new Insets(0, 5, 5, 5);
 		gbc_label_3.gridx = 0;
 		gbc_label_3.gridy = 3;
 		panelObjColor.add(label_3, gbc_label_3);
@@ -246,16 +235,16 @@ public class Visualizador3D {
 		spinObjBlue.setToolTipText("Azul");
 		GridBagConstraints gbc_spinObjBlue = new GridBagConstraints();
 		gbc_spinObjBlue.anchor = GridBagConstraints.WEST;
-		gbc_spinObjBlue.insets = new Insets(0, 0, 0, 5);
+		gbc_spinObjBlue.insets = new Insets(0, 0, 5, 5);
 		gbc_spinObjBlue.gridx = 1;
 		gbc_spinObjBlue.gridy = 3;
 		panelObjColor.add(spinObjBlue, gbc_spinObjBlue);
 		
 		panelLuzAmbiente = new JPanel();
-		panelLuzAmbiente.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Luz Ambiente", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelLuzAmbiente.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Fuente de Luz", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		GridBagConstraints gbc_panelLuzAmbiente = new GridBagConstraints();
 		gbc_panelLuzAmbiente.fill = GridBagConstraints.BOTH;
-		gbc_panelLuzAmbiente.insets = new Insets(0, 0, 5, 0);
+		gbc_panelLuzAmbiente.insets = new Insets(5, 5, 0, 5);
 		gbc_panelLuzAmbiente.gridx = 0;
 		gbc_panelLuzAmbiente.gridy = 1;
 		panelOpciones.add(panelLuzAmbiente, gbc_panelLuzAmbiente);
@@ -277,18 +266,19 @@ public class Visualizador3D {
 		comboLuz.setModel(new DefaultComboBoxModel(new String[] {"Izquierda", "Derecha", "Arriba", "Abajo", "Frente", "Trasera"}));
 		comboLuz.setSelectedIndex(0);
 		GridBagConstraints gbc_comboLuz = new GridBagConstraints();
-		gbc_comboLuz.insets = new Insets(5, 5, 5, 0);
+		gbc_comboLuz.insets = new Insets(5, 5, 5, 5);
 		gbc_comboLuz.fill = GridBagConstraints.HORIZONTAL;
 		gbc_comboLuz.gridx = 0;
 		gbc_comboLuz.gridy = 0;
 		panelLuzAmbiente.add(comboLuz, gbc_comboLuz);
 		
 		panelAmbColor = new JPanel();
+		panelAmbColor.setBorder(new TitledBorder(null, "Luz Ambiente", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_panelAmbColor = new GridBagConstraints();
-		gbc_panelAmbColor.fill = GridBagConstraints.BOTH;
+		gbc_panelAmbColor.insets = new Insets(5, 5, 0, 5);
 		gbc_panelAmbColor.gridx = 0;
 		gbc_panelAmbColor.gridy = 2;
-		panelLuzAmbiente.add(panelAmbColor, gbc_panelAmbColor);
+		panelOpciones.add(panelAmbColor, gbc_panelAmbColor);
 		GridBagLayout gbl_panelAmbColor = new GridBagLayout();
 		gbl_panelAmbColor.columnWidths = new int[]{47, 47, 47, 0};
 		gbl_panelAmbColor.rowHeights = new int[]{20, 0, 0, 0};
@@ -296,14 +286,14 @@ public class Visualizador3D {
 		gbl_panelAmbColor.rowWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
 		panelAmbColor.setLayout(gbl_panelAmbColor);
 		
-		label_1 = new JLabel("Rojo");
-		label_1.setFont(new Font("Arial", Font.BOLD, 13));
-		GridBagConstraints gbc_label_1 = new GridBagConstraints();
-		gbc_label_1.anchor = GridBagConstraints.EAST;
-		gbc_label_1.insets = new Insets(0, 0, 5, 5);
-		gbc_label_1.gridx = 0;
-		gbc_label_1.gridy = 0;
-		panelAmbColor.add(label_1, gbc_label_1);
+		labelAmbRojo = new JLabel("Rojo");
+		labelAmbRojo.setFont(new Font("Arial", Font.BOLD, 13));
+		GridBagConstraints gbc_labelAmbRojo = new GridBagConstraints();
+		gbc_labelAmbRojo.anchor = GridBagConstraints.EAST;
+		gbc_labelAmbRojo.insets = new Insets(5, 5, 5, 5);
+		gbc_labelAmbRojo.gridx = 0;
+		gbc_labelAmbRojo.gridy = 0;
+		panelAmbColor.add(labelAmbRojo, gbc_labelAmbRojo);
 		
 		spinAmbRed = new JSpinner();
 		spinAmbRed.addChangeListener(new ChangeListener() {
@@ -315,13 +305,14 @@ public class Visualizador3D {
 		spinAmbRed.setToolTipText("Rojo");
 		GridBagConstraints gbc_spinAmbRed = new GridBagConstraints();
 		gbc_spinAmbRed.anchor = GridBagConstraints.WEST;
-		gbc_spinAmbRed.insets = new Insets(0, 0, 5, 5);
+		gbc_spinAmbRed.insets = new Insets(5, 0, 5, 5);
 		gbc_spinAmbRed.gridx = 1;
 		gbc_spinAmbRed.gridy = 0;
 		panelAmbColor.add(spinAmbRed, gbc_spinAmbRed);
 		
 		lblAmbMuestra = new JLabel("");
 		GridBagConstraints gbc_lblAmbMuestra = new GridBagConstraints();
+		gbc_lblAmbMuestra.insets = new Insets(5, 0, 5, 5);
 		gbc_lblAmbMuestra.weighty = 40.0;
 		gbc_lblAmbMuestra.weightx = 40.0;
 		gbc_lblAmbMuestra.fill = GridBagConstraints.BOTH;
@@ -330,14 +321,14 @@ public class Visualizador3D {
 		gbc_lblAmbMuestra.gridy = 0;
 		panelAmbColor.add(lblAmbMuestra, gbc_lblAmbMuestra);
 		
-		label_5 = new JLabel("Verde");
-		label_5.setFont(new Font("Arial", Font.BOLD, 13));
-		GridBagConstraints gbc_label_5 = new GridBagConstraints();
-		gbc_label_5.anchor = GridBagConstraints.EAST;
-		gbc_label_5.insets = new Insets(0, 0, 5, 5);
-		gbc_label_5.gridx = 0;
-		gbc_label_5.gridy = 1;
-		panelAmbColor.add(label_5, gbc_label_5);
+		labelAmbGreen = new JLabel("Verde");
+		labelAmbGreen.setFont(new Font("Arial", Font.BOLD, 13));
+		GridBagConstraints gbc_labelAmbGreen = new GridBagConstraints();
+		gbc_labelAmbGreen.anchor = GridBagConstraints.EAST;
+		gbc_labelAmbGreen.insets = new Insets(0, 5, 5, 5);
+		gbc_labelAmbGreen.gridx = 0;
+		gbc_labelAmbGreen.gridy = 1;
+		panelAmbColor.add(labelAmbGreen, gbc_labelAmbGreen);
 		
 		spinAmbGreen = new JSpinner();
 		spinAmbGreen.addChangeListener(new ChangeListener() {
@@ -354,14 +345,14 @@ public class Visualizador3D {
 		gbc_spinAmbGreen.gridy = 1;
 		panelAmbColor.add(spinAmbGreen, gbc_spinAmbGreen);
 		
-		label_6 = new JLabel("Azul");
-		label_6.setFont(new Font("Arial", Font.BOLD, 13));
-		GridBagConstraints gbc_label_6 = new GridBagConstraints();
-		gbc_label_6.anchor = GridBagConstraints.EAST;
-		gbc_label_6.insets = new Insets(0, 0, 0, 5);
-		gbc_label_6.gridx = 0;
-		gbc_label_6.gridy = 2;
-		panelAmbColor.add(label_6, gbc_label_6);
+		labelAmbBlue = new JLabel("Azul");
+		labelAmbBlue.setFont(new Font("Arial", Font.BOLD, 13));
+		GridBagConstraints gbc_labelAmbBlue = new GridBagConstraints();
+		gbc_labelAmbBlue.anchor = GridBagConstraints.EAST;
+		gbc_labelAmbBlue.insets = new Insets(0, 5, 5, 5);
+		gbc_labelAmbBlue.gridx = 0;
+		gbc_labelAmbBlue.gridy = 2;
+		panelAmbColor.add(labelAmbBlue, gbc_labelAmbBlue);
 		
 		spinAmbBlue = new JSpinner();
 		spinAmbBlue.addChangeListener(new ChangeListener() {
@@ -373,7 +364,7 @@ public class Visualizador3D {
 		spinAmbBlue.setToolTipText("Azul");
 		GridBagConstraints gbc_spinAmbBlue = new GridBagConstraints();
 		gbc_spinAmbBlue.anchor = GridBagConstraints.WEST;
-		gbc_spinAmbBlue.insets = new Insets(0, 0, 0, 5);
+		gbc_spinAmbBlue.insets = new Insets(0, 0, 5, 5);
 		gbc_spinAmbBlue.gridx = 1;
 		gbc_spinAmbBlue.gridy = 2;
 		panelAmbColor.add(spinAmbBlue, gbc_spinAmbBlue);
@@ -382,9 +373,9 @@ public class Visualizador3D {
 		panelVisualizacion.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Visualizacion", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		GridBagConstraints gbc_panelVisualizacion = new GridBagConstraints();
 		gbc_panelVisualizacion.fill = GridBagConstraints.BOTH;
-		gbc_panelVisualizacion.insets = new Insets(0, 0, 5, 0);
+		gbc_panelVisualizacion.insets = new Insets(5, 5, 0, 5);
 		gbc_panelVisualizacion.gridx = 0;
-		gbc_panelVisualizacion.gridy = 2;
+		gbc_panelVisualizacion.gridy = 3;
 		panelOpciones.add(panelVisualizacion, gbc_panelVisualizacion);
 		GridBagLayout gbl_panelVisualizacion = new GridBagLayout();
 		gbl_panelVisualizacion.columnWidths = new int[]{48, 0};
@@ -427,10 +418,10 @@ public class Visualizador3D {
 		panelTransformacion = new JPanel();
 		panelTransformacion.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Transformaciones", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		GridBagConstraints gbc_panelTransformacion = new GridBagConstraints();
-		gbc_panelTransformacion.insets = new Insets(0, 0, 5, 0);
+		gbc_panelTransformacion.insets = new Insets(5, 5, 0, 5);
 		gbc_panelTransformacion.fill = GridBagConstraints.BOTH;
 		gbc_panelTransformacion.gridx = 0;
-		gbc_panelTransformacion.gridy = 3;
+		gbc_panelTransformacion.gridy = 4;
 		panelOpciones.add(panelTransformacion, gbc_panelTransformacion);
 		GridBagLayout gbl_panelTransformacion = new GridBagLayout();
 		gbl_panelTransformacion.columnWidths = new int[]{48, 0};
@@ -485,10 +476,10 @@ public class Visualizador3D {
 		panelPosicion = new JPanel();
 		panelPosicion.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Posicion", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		GridBagConstraints gbc_panelPosicion = new GridBagConstraints();
-		gbc_panelPosicion.insets = new Insets(0, 0, 5, 0);
+		gbc_panelPosicion.insets = new Insets(5, 5, 5, 5);
 		gbc_panelPosicion.fill = GridBagConstraints.BOTH;
 		gbc_panelPosicion.gridx = 0;
-		gbc_panelPosicion.gridy = 4;
+		gbc_panelPosicion.gridy = 5;
 		panelOpciones.add(panelPosicion, gbc_panelPosicion);
 		GridBagLayout gbl_panelPosicion = new GridBagLayout();
 		gbl_panelPosicion.columnWidths = new int[]{48, 0, 0};
@@ -587,7 +578,7 @@ public class Visualizador3D {
 		frmVisualizadord.getContentPane().add(panelImagen, gbc_panelImagen);
 
 		// Cargar Handler
-		mouseHandler = new MouseHandler(this, panelImagen);
+		MouseHandler mouseHandler = new MouseHandler(this, panelImagen);
 		
 		// Panel Opciones
 		panelOpciones = new JPanel();

@@ -109,7 +109,7 @@ public class AcercaDe extends JDialog {
 		}
 		{
 			JTextPane txtpnLaGeneracinDe = new JTextPane();
-			txtpnLaGeneracinDe.setText("El objeto tiene un modelo de iluminacion simple, y el usuario puede elegir la posicion donde est\u00E1 situada la fuente de luz.");
+			txtpnLaGeneracinDe.setText("El objeto tiene un modelo de iluminacion simple, y el usuario puede elegir la posicion donde est\u00E1 situada la fuente de luz, as\u00ED como el color de la luz ambiente.\r\nTambi\u00E9n se puede elegir el color propio del objeto.");
 			txtpnLaGeneracinDe.setBackground(UIManager.getColor("CheckBox.light"));
 			GridBagConstraints gbc_txtpnLaGeneracinDe = new GridBagConstraints();
 			gbc_txtpnLaGeneracinDe.insets = new Insets(0, 10, 5, 10);

@@ -21,46 +21,20 @@ public class Imagen3D extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private boolean cargado;
-	Objeto3D objeto;
-	
+	Objeto3D objeto;	
 	private int vista;
-	private double distancia;
+	private boolean cargado;
 	private boolean backfaceCulling;
 	private boolean perspectiva;
 
-	private Punto3D [] luces = new Punto3D[]{new Punto3D(-1500, 0, 0),
-											 new Punto3D(1500, 0, 0),
-											 new Punto3D(0, 1500, 0),
-											 new Punto3D(0, -1500, 0),
-											 new Punto3D(0, 1500, 0),
-											 new Punto3D(0, 0, 1500),
-											 new Punto3D(0, 0, -1500)};
-
-	private Punto3D luzPunto = luces[0];
+	private Punto3D [] luces;
+	private Punto3D luzPunto;
 
 	private Color objectColor;
-
 	private Color ambientColor;
 	
 	public Imagen3D() {
 		setBorder(BorderFactory.createLineBorder(Color.black));
-	}
-
-	public int getXtoC(double x){
-		return (int) x;
-	}
-
-	public int getYtoF(double y){
-		return (int) (getHeight() - y);
-	}
-
-	public double getCtoX(int c){
-		return c;
-	}
-
-	public double getFtoY(int f){
-		return getHeight() - f;
 	}
 
 	public void rotar(int deltaF, int deltaC) {
@@ -141,6 +115,7 @@ public class Imagen3D extends JPanel {
 	
 	public void setLuzPunto(int luzIndex){
 		this.luzPunto = luces[luzIndex];
+		
 		updateUI();
 	}
 
@@ -148,6 +123,16 @@ public class Imagen3D extends JPanel {
 		this.objeto = objeto;
 		
 		setCargado(true);
+		Punto3D centro = objeto.getCentro();
+		
+		luces = new Punto3D[]{new Punto3D(centro.getX() - 1500, 0, 0),
+				 new Punto3D(centro.getX() + 1500, 0, 0),
+				 new Punto3D(0, centro.getY() + 1500, 0),
+				 new Punto3D(0, centro.getY() - 1500, 0),
+				 new Punto3D(0, 0, centro.getZ() - 1500),
+				 new Punto3D(0, 0, centro.getZ() + 1500)};
+		this.luzPunto = luces[0];
+		
 		updateUI();
 	}
 

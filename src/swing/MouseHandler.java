@@ -12,8 +12,6 @@ public class MouseHandler extends MouseAdapter {
 	private Imagen3D panelImagen;
 	private long oldTime = 0;
 	
-	private int xPosPressed;
-	private int yPosPressed;
 	private Visualizador3D frame;
 	
 	public MouseHandler(Visualizador3D frame, Imagen3D panelImagen) {
@@ -44,10 +42,7 @@ public class MouseHandler extends MouseAdapter {
 	@Override
 	public void mousePressed(MouseEvent evento){
 		xPos = evento.getX();
-		yPos = evento.getY();
-		xPosPressed = xPos;
-		yPosPressed = yPos;
-		
+		yPos = evento.getY();		
 	}
 	
 	@Override

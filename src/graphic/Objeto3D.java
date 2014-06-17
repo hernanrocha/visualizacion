@@ -14,7 +14,6 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import matriz.MatrizEscala;
-import matriz.MatrizPerspectiva;
 import matriz.MatrizTransformacion;
 import matriz.MatrizTraslacion;
 
@@ -33,18 +32,17 @@ public class Objeto3D {
 	private HashMap<Integer, Punto3D> puntos = new HashMap<Integer, Punto3D>(); // Puntos originales
 	
 	private HashMap<Integer, Punto3D> puntosNuevos = new HashMap<Integer, Punto3D>(); // Puntos con transformacion
-//	private MatrizTransformacion matrizAcumulada = new MatrizIdentidad(); // Matriz de transformaciones acumuladas
-	
+
 	private FileReader fr;
 	private BufferedReader br;
 	private Punto3D centro;
-	private HashMap<Integer, Punto3D> puntosNoLineal;
 	
 	public Objeto3D(File f){
 		loadSUR(f);
 	}
 	
 	// Cargar SUR (Verificar espacios entre coordenadas)
+	@SuppressWarnings("unchecked")
 	public void loadSUR(File archivo){
 		try {
 			fr = new FileReader(archivo);
@@ -63,7 +61,7 @@ public class Objeto3D {
 				if (linea.indexOf(ELEMENT_GROUPS) != -1){
 					int cantElementGroups = Integer.parseInt(readLine());
 					
-					System.out.println("Found " + cantElementGroups + " ELEMENT GROUPS. ");
+//					System.out.println("Found " + cantElementGroups + " ELEMENT GROUPS. ");
 					
 					for(int i = 1; i <= cantElementGroups; i++){
 						String elemGroup = readLine();
@@ -74,13 +72,13 @@ public class Objeto3D {
 							// Agregar Element Group
 							grupos.add(new ElementGroup(tokensElemGroup[2], groupCant));
 						}else{
-							System.out.println("ERROR al parsear grupo de elementos");
+//							System.out.println("ERROR al parsear grupo de elementos");
 						}
 					}
 				}else if (linea.indexOf(INCIDENCE) != -1){
 					// Recorrer grupo de elementos
 					for (ElementGroup group : grupos){
-						System.out.println("Procesando " + group.getTipo());
+//						System.out.println("Procesando " + group.getTipo());
 						
 						int cant = group.getCantidad();
 						int incidencia = group.getGradoIncidencia();
@@ -100,7 +98,7 @@ public class Objeto3D {
 							group.agregarElemento(new Incidence(puntos));
 						}
 						
-						System.out.println("ESTRUCTURA: Grupo " + group.getTipo() + " con " + group.getElemCant() + " elementos.");
+//						System.out.println("ESTRUCTURA: Grupo " + group.getTipo() + " con " + group.getElemCant() + " elementos.");
 						
 						for (ElementGroup grupo : grupos){
 							elementos.addAll(grupo.getElementos());
@@ -132,11 +130,11 @@ public class Objeto3D {
 						puntos.put(id, new Punto3D(x, y, z));
 					}
 
-					System.out.println("ESTRUCTURA: Encontrados " + puntos.size() + " points.");
+//					System.out.println("ESTRUCTURA: Encontrados " + puntos.size() + " points.");
 					
 					centro = new Punto3D((xMin + xMax) / 2, (yMin + yMax) / 2, (zMin + zMax) / 2);
 					
-					System.out.println("Centro: " + centro);
+//					System.out.println("Centro: " + centro);
 					
 				}/*else if (linea.equals("")){
 					
@@ -154,7 +152,7 @@ public class Objeto3D {
 			double ratio = 300 / Math.max((xMax - xMin) / 2, (yMax - yMin) / 2);
 			aplicarTransformacion(new MatrizEscala(ratio));
 			
-			System.out.println("Zs: " + zMin + " - " + zMax);
+//			System.out.println("Zs: " + zMin + " - " + zMax);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -191,15 +189,6 @@ public class Objeto3D {
 	}
 
 	public Vector<Incidence> getElementos() {
-		final HashMap<Integer, Punto3D> puntosNuevos = new HashMap<Integer, Punto3D>(); // Puntos con transformacion
-		
-		
-		Set<Entry<Integer, Punto3D>> pares = this.puntosNuevos.entrySet();
-		for (Entry<Integer, Punto3D> par : pares){
-			puntosNuevos.put(par.getKey(), par.getValue().aplicarTransformacion(new MatrizPerspectiva(par.getValue().getZ()).getMatriz()));
-		}
-		
-		puntosNoLineal = puntosNuevos;
 		
 		// Ordenar elementos segun valor medio de Z
 		Collections.sort(elementos, new Comparator<Incidence>() {
@@ -215,7 +204,7 @@ public class Objeto3D {
 	}
 	
 	public HashMap<Integer, Punto3D> getPuntos(){
-		return puntosNoLineal;
+		return puntosNuevos;
 	}
 	
 	public Punto3D getCentro(){
