@@ -114,8 +114,10 @@ public class Imagen3D extends JPanel {
 	}
 	
 	public void setLuzPunto(int luzIndex){
-		this.luzPunto = luces[luzIndex];
+		if (!cargado)
+			return;
 		
+		this.luzPunto = luces[luzIndex];		
 		updateUI();
 	}
 

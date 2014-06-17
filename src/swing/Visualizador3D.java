@@ -63,7 +63,7 @@ public class Visualizador3D {
 	private JComboBox comboVista;
 	private JMenu mnAyuda;
 	private JMenuItem mntmAcercaDe;
-	private JTable table;
+	private JTable tableTransformacion;
 	private JButton btnAplicar;
 	private JPanel panelTransformacion;
 	private JPanel panelVisualizacion;
@@ -77,12 +77,12 @@ public class Visualizador3D {
 	private JMenuItem mntmGuardarComo;
 	private JComboBox comboLuz;
 	private JPanel panelObjColor;
-	private JLabel label;
+	private JLabel labelObjRed;
 	private JSpinner spinObjRed;
 	private JLabel lblObjMuestra;
-	private JLabel label_2;
+	private JLabel labelObjGreen;
 	private JSpinner spinObjGreen;
-	private JLabel label_3;
+	private JLabel labelObjBlue;
 	private JSpinner spinObjBlue;
 	private JPanel panelAmbColor;
 	private JLabel labelAmbRojo;
@@ -92,7 +92,7 @@ public class Visualizador3D {
 	private JSpinner spinAmbGreen;
 	private JLabel labelAmbBlue;
 	private JSpinner spinAmbBlue;
-	private JComboBox comboBox;
+	private JComboBox comboObjeto;
 	
 	File[] files = new File[]{new File("sur/747.sur"),
 			new File("sur/horse.sur"),
@@ -121,8 +121,134 @@ public class Visualizador3D {
 	 * Create the application.
 	 */
 	public Visualizador3D() {
-		initialize();
+		initialize();		
+
+		actualizarMuestraObjeto();
 		
+		actualizarMuestraAmbiente();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		// Ventana principal
+		frmVisualizadord = new JFrame();
+		frmVisualizadord.setIconImage(Toolkit.getDefaultToolkit().getImage(Visualizador3D.class.getResource("/icon/icon.png")));
+		frmVisualizadord.setTitle("Visualizador 3D");
+		frmVisualizadord.setBounds(50, 20, 1200, 700);
+		frmVisualizadord.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		GridBagLayout gridBagLayout = new GridBagLayout();
+		gridBagLayout.columnWidths = new int[]{0, 200, 0};
+		gridBagLayout.rowHeights = new int[]{261, 0};
+		gridBagLayout.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{1.0, Double.MIN_VALUE};
+		frmVisualizadord.getContentPane().setLayout(gridBagLayout);
+		
+		// Panel Imagen
+		panelImagen = new Imagen3D();
+		
+		GridBagConstraints gbc_panelImagen = new GridBagConstraints();
+		gbc_panelImagen.fill = GridBagConstraints.BOTH;
+		gbc_panelImagen.insets = new Insets(15, 15, 15, 5);
+		gbc_panelImagen.gridx = 0;
+		gbc_panelImagen.gridy = 0;
+		frmVisualizadord.getContentPane().add(panelImagen, gbc_panelImagen);
+
+		// Cargar Handler
+		MouseHandler mouseHandler = new MouseHandler(this, panelImagen);
+		
+		// Panel Opciones
+		panelOpciones = new JPanel();
+		
+		GridBagConstraints gbc_panelOpciones = new GridBagConstraints();
+		gbc_panelOpciones.insets = new Insets(15, 10, 15, 15);
+		gbc_panelOpciones.fill = GridBagConstraints.BOTH;
+		gbc_panelOpciones.gridx = 1;
+		gbc_panelOpciones.gridy = 0;
+		frmVisualizadord.getContentPane().add(panelOpciones, gbc_panelOpciones);
+		
+		GridBagLayout gbl_panelOpciones = new GridBagLayout();
+		gbl_panelOpciones.columnWidths = new int[]{48, 0};
+		gbl_panelOpciones.rowHeights = new int[]{36, 0, 0, 0, 0, 0, 0};
+		gbl_panelOpciones.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_panelOpciones.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		panelOpciones.setLayout(gbl_panelOpciones);
+		
+		initMenu();
+		
+		initPanelObjeto();
+		
+		initPanelLuzAmbiente();
+		
+		initPanelAmbienteColor();
+		
+		initPanelVisualizacion();
+		
+		initPanelTransformacion();
+		
+		initPanelPosicion();		
+				
+	}
+	
+	private void initMenu() {
+		
+		menuBar = new JMenuBar();
+		frmVisualizadord.setJMenuBar(menuBar);
+		
+		mnArchivo = new JMenu("Archivo");
+		menuBar.add(mnArchivo);
+		
+		mntmCargarArchivo = new JMenuItem("Cargar Archivo");
+		mntmCargarArchivo.setIcon(new ImageIcon(Visualizador3D.class.getResource("/icon/open.png")));
+		mntmCargarArchivo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+		mntmCargarArchivo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				abrirArchivo();
+			}
+		});
+		mnArchivo.add(mntmCargarArchivo);
+		
+		mntmGuardarComo = new JMenuItem("Guardar Como");
+		mntmGuardarComo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				guardarImagenComo();
+			}
+		});
+		mntmGuardarComo.setIcon(new ImageIcon(Visualizador3D.class.getResource("/icon/save.png")));
+		mntmGuardarComo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
+		mnArchivo.add(mntmGuardarComo);
+		
+		separator = new JSeparator();
+		mnArchivo.add(separator);
+		
+		mntmSalir = new JMenuItem("Salir");
+		mntmSalir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				frmVisualizadord.dispose();
+			}
+		});
+		mntmSalir.setIcon(new ImageIcon(Visualizador3D.class.getResource("/icon/close.png")));
+		mntmSalir.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_MASK));
+		mnArchivo.add(mntmSalir);
+		
+		mnAyuda = new JMenu("Ayuda");
+		menuBar.add(mnAyuda);
+		
+		mntmAcercaDe = new JMenuItem("Acerca De");
+		mntmAcercaDe.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				AcercaDe acercaDe = new AcercaDe();
+				acercaDe.setVisible(true);
+			}
+		});
+		mntmAcercaDe.setIcon(new ImageIcon(Visualizador3D.class.getResource("/icon/about.png")));
+		mnAyuda.add(mntmAcercaDe);
+		
+	}
+	
+	private void initPanelObjeto() {
 		panelObjColor = new JPanel();
 		panelObjColor.setBorder(new TitledBorder(null, "Objeto", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_panelObjColor = new GridBagConstraints();
@@ -137,34 +263,34 @@ public class Visualizador3D {
 		gbl_panelObjColor.rowWeights = new double[]{0.0, 1.0, 1.0, 1.0, Double.MIN_VALUE};
 		panelObjColor.setLayout(gbl_panelObjColor);
 		
-		comboBox = new JComboBox();
-		GridBagConstraints gbc_comboBox = new GridBagConstraints();
-		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
-		gbc_comboBox.gridwidth = 3;
-		gbc_comboBox.insets = new Insets(5, 5, 5, 5);
-		gbc_comboBox.gridx = 0;
-		gbc_comboBox.gridy = 0;
-		panelObjColor.add(comboBox, gbc_comboBox);
-		comboBox.addActionListener(new ActionListener() {
+		comboObjeto = new JComboBox();
+		GridBagConstraints gbc_comboObjeto = new GridBagConstraints();
+		gbc_comboObjeto.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboObjeto.gridwidth = 3;
+		gbc_comboObjeto.insets = new Insets(5, 5, 5, 5);
+		gbc_comboObjeto.gridx = 0;
+		gbc_comboObjeto.gridy = 0;
+		panelObjColor.add(comboObjeto, gbc_comboObjeto);
+		comboObjeto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				int index = comboBox.getSelectedIndex();
+				int index = comboObjeto.getSelectedIndex();
 				
 				if(index != 0){
 					cargar(files[index - 1]);
 				}
 			}
 		});
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Seleccionar Objeto", "747", "Caballo", "Mano", "Hebe", "Misil", "Toro"}));
-		comboBox.setSelectedIndex(0);
+		comboObjeto.setModel(new DefaultComboBoxModel(new String[] {"Seleccionar Objeto", "747", "Caballo", "Mano", "Hebe", "Misil", "Toro"}));
+		comboObjeto.setSelectedIndex(0);
 		
-		label = new JLabel("Rojo");
-		label.setFont(new Font("Arial", Font.BOLD, 13));
+		labelObjRed = new JLabel("Rojo");
+		labelObjRed.setFont(new Font("Arial", Font.BOLD, 13));
 		GridBagConstraints gbc_label = new GridBagConstraints();
 		gbc_label.anchor = GridBagConstraints.EAST;
 		gbc_label.insets = new Insets(5, 5, 5, 5);
 		gbc_label.gridx = 0;
 		gbc_label.gridy = 1;
-		panelObjColor.add(label, gbc_label);
+		panelObjColor.add(labelObjRed, gbc_label);
 		
 		spinObjRed = new JSpinner();
 		spinObjRed.addChangeListener(new ChangeListener() {
@@ -192,14 +318,14 @@ public class Visualizador3D {
 		gbc_lblObjMuestra.gridy = 1;
 		panelObjColor.add(lblObjMuestra, gbc_lblObjMuestra);
 		
-		label_2 = new JLabel("Verde");
-		label_2.setFont(new Font("Arial", Font.BOLD, 13));
+		labelObjGreen = new JLabel("Verde");
+		labelObjGreen.setFont(new Font("Arial", Font.BOLD, 13));
 		GridBagConstraints gbc_label_2 = new GridBagConstraints();
 		gbc_label_2.anchor = GridBagConstraints.EAST;
 		gbc_label_2.insets = new Insets(0, 5, 5, 5);
 		gbc_label_2.gridx = 0;
 		gbc_label_2.gridy = 2;
-		panelObjColor.add(label_2, gbc_label_2);
+		panelObjColor.add(labelObjGreen, gbc_label_2);
 		
 		spinObjGreen = new JSpinner();
 		spinObjGreen.addChangeListener(new ChangeListener() {
@@ -216,14 +342,14 @@ public class Visualizador3D {
 		gbc_spinObjGreen.gridy = 2;
 		panelObjColor.add(spinObjGreen, gbc_spinObjGreen);
 		
-		label_3 = new JLabel("Azul");
-		label_3.setFont(new Font("Arial", Font.BOLD, 13));
+		labelObjBlue = new JLabel("Azul");
+		labelObjBlue.setFont(new Font("Arial", Font.BOLD, 13));
 		GridBagConstraints gbc_label_3 = new GridBagConstraints();
 		gbc_label_3.anchor = GridBagConstraints.EAST;
 		gbc_label_3.insets = new Insets(0, 5, 5, 5);
 		gbc_label_3.gridx = 0;
 		gbc_label_3.gridy = 3;
-		panelObjColor.add(label_3, gbc_label_3);
+		panelObjColor.add(labelObjBlue, gbc_label_3);
 		
 		spinObjBlue = new JSpinner();
 		spinObjBlue.addChangeListener(new ChangeListener() {
@@ -238,8 +364,11 @@ public class Visualizador3D {
 		gbc_spinObjBlue.insets = new Insets(0, 0, 5, 5);
 		gbc_spinObjBlue.gridx = 1;
 		gbc_spinObjBlue.gridy = 3;
-		panelObjColor.add(spinObjBlue, gbc_spinObjBlue);
-		
+		panelObjColor.add(spinObjBlue, gbc_spinObjBlue);		
+	}
+	
+
+	private void initPanelLuzAmbiente() {
 		panelLuzAmbiente = new JPanel();
 		panelLuzAmbiente.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Fuente de Luz", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		GridBagConstraints gbc_panelLuzAmbiente = new GridBagConstraints();
@@ -270,8 +399,11 @@ public class Visualizador3D {
 		gbc_comboLuz.fill = GridBagConstraints.HORIZONTAL;
 		gbc_comboLuz.gridx = 0;
 		gbc_comboLuz.gridy = 0;
-		panelLuzAmbiente.add(comboLuz, gbc_comboLuz);
-		
+		panelLuzAmbiente.add(comboLuz, gbc_comboLuz);		
+	}
+	
+	
+	private void initPanelAmbienteColor() {
 		panelAmbColor = new JPanel();
 		panelAmbColor.setBorder(new TitledBorder(null, "Luz Ambiente", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		GridBagConstraints gbc_panelAmbColor = new GridBagConstraints();
@@ -367,8 +499,11 @@ public class Visualizador3D {
 		gbc_spinAmbBlue.insets = new Insets(0, 0, 5, 5);
 		gbc_spinAmbBlue.gridx = 1;
 		gbc_spinAmbBlue.gridy = 2;
-		panelAmbColor.add(spinAmbBlue, gbc_spinAmbBlue);
-		
+		panelAmbColor.add(spinAmbBlue, gbc_spinAmbBlue);		
+	}
+	
+	
+	private void initPanelVisualizacion() {
 		panelVisualizacion = new JPanel();
 		panelVisualizacion.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Visualizacion", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		GridBagConstraints gbc_panelVisualizacion = new GridBagConstraints();
@@ -413,8 +548,11 @@ public class Visualizador3D {
 		gbc_chckbxBackfaceCulling.insets = new Insets(0, 10, 0, 0);
 		gbc_chckbxBackfaceCulling.gridx = 0;
 		gbc_chckbxBackfaceCulling.gridy = 1;
-		panelVisualizacion.add(chckbxBackfaceCulling, gbc_chckbxBackfaceCulling);
-		
+		panelVisualizacion.add(chckbxBackfaceCulling, gbc_chckbxBackfaceCulling);		
+	}
+	
+	
+	private void initPanelTransformacion() {
 		panelTransformacion = new JPanel();
 		panelTransformacion.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Transformaciones", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		GridBagConstraints gbc_panelTransformacion = new GridBagConstraints();
@@ -430,14 +568,14 @@ public class Visualizador3D {
 		gbl_panelTransformacion.rowWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
 		panelTransformacion.setLayout(gbl_panelTransformacion);
 		
-		table = new JTable();
-		GridBagConstraints gbc_table = new GridBagConstraints();
-		gbc_table.fill = GridBagConstraints.BOTH;
-		gbc_table.insets = new Insets(5, 5, 5, 5);
-		gbc_table.gridx = 0;
-		gbc_table.gridy = 0;
-		panelTransformacion.add(table, gbc_table);
-		table.setModel(new DefaultTableModel(
+		tableTransformacion = new JTable();
+		GridBagConstraints gbc_tableTransformacion = new GridBagConstraints();
+		gbc_tableTransformacion.fill = GridBagConstraints.BOTH;
+		gbc_tableTransformacion.insets = new Insets(5, 5, 5, 5);
+		gbc_tableTransformacion.gridx = 0;
+		gbc_tableTransformacion.gridy = 0;
+		panelTransformacion.add(tableTransformacion, gbc_tableTransformacion);
+		tableTransformacion.setModel(new DefaultTableModel(
 			new Object[][] {
 				{"1", "0", "0", "0"},
 				{"0", "1", "0", "0"},
@@ -455,12 +593,12 @@ public class Visualizador3D {
 				return columnTypes[columnIndex];
 			}
 		});
-		table.getColumnModel().getColumn(0).setResizable(false);
-		table.getColumnModel().getColumn(0).setPreferredWidth(30);
-		table.getColumnModel().getColumn(0).setMinWidth(10);
-		table.getColumnModel().getColumn(1).setPreferredWidth(30);
-		table.getColumnModel().getColumn(2).setPreferredWidth(30);
-		table.getColumnModel().getColumn(3).setPreferredWidth(30);
+		tableTransformacion.getColumnModel().getColumn(0).setResizable(false);
+		tableTransformacion.getColumnModel().getColumn(0).setPreferredWidth(30);
+		tableTransformacion.getColumnModel().getColumn(0).setMinWidth(10);
+		tableTransformacion.getColumnModel().getColumn(1).setPreferredWidth(30);
+		tableTransformacion.getColumnModel().getColumn(2).setPreferredWidth(30);
+		tableTransformacion.getColumnModel().getColumn(3).setPreferredWidth(30);
 		
 		btnAplicar = new JButton("Aplicar");
 		btnAplicar.addActionListener(new ActionListener() {
@@ -471,8 +609,11 @@ public class Visualizador3D {
 		GridBagConstraints gbc_btnAplicar = new GridBagConstraints();
 		gbc_btnAplicar.gridx = 0;
 		gbc_btnAplicar.gridy = 1;
-		panelTransformacion.add(btnAplicar, gbc_btnAplicar);
-		
+		panelTransformacion.add(btnAplicar, gbc_btnAplicar);		
+	}
+	
+	
+	private void initPanelPosicion() {
 		panelPosicion = new JPanel();
 		panelPosicion.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Posicion", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		GridBagConstraints gbc_panelPosicion = new GridBagConstraints();
@@ -517,23 +658,43 @@ public class Visualizador3D {
 		gbc_lblPosY.anchor = GridBagConstraints.WEST;
 		gbc_lblPosY.gridx = 1;
 		gbc_lblPosY.gridy = 1;
-		panelPosicion.add(lblPosY, gbc_lblPosY);
-		
-		
-		actualizarMuestraObjeto();
-		actualizarMuestraAmbiente();
+		panelPosicion.add(lblPosY, gbc_lblPosY);		
 	}
-
+	
+	
 	protected void actualizarLuz() {
 		panelImagen.setLuzPunto(comboLuz.getSelectedIndex());
 	}
 
+	protected void actualizarMuestraObjeto() {
+		int r = (int) spinObjRed.getValue();
+		int g = (int) spinObjGreen.getValue();
+		int b = (int) spinObjBlue.getValue();
+
+		Color c = new Color(r,g,b);
+		lblObjMuestra.setIcon(new ImageIcon(new ImgMuestra(c, 80, 80)));
+		panelImagen.setObjectColor(c);
+	}
+	
+	protected void actualizarMuestraAmbiente() {
+		int r = (int) spinAmbRed.getValue();
+		int g = (int) spinAmbGreen.getValue();
+		int b = (int) spinAmbBlue.getValue();
+
+		Color c = new Color(r,g,b);
+		lblAmbMuestra.setIcon(new ImageIcon(new ImgMuestra(c, 80, 80)));
+		panelImagen.setAmbientColor(c);
+	}
+	
 	protected void agregarTransformacionTabla() {
+		if(!panelImagen.isCargado())
+			return;
+		
 		double[][] matriz = new double[4][4];
 		
 		for(int i = 0; i < 4; i++){
 			for (int j = 0; j < 4; j++){
-				Object valor = table.getValueAt(i, j);
+				Object valor = tableTransformacion.getValueAt(i, j);
 				
 				try{
 					if (valor != null){
@@ -547,59 +708,6 @@ public class Visualizador3D {
 		panelImagen.objeto.aplicarTransformacion((new MatrizTransformacion(matriz)));
 		panelImagen.updateUI();
 		
-	}
-
-	/**
-	 * Initialize the contents of the frame.
-	 */
-	private void initialize() {
-		// Ventana principal
-		frmVisualizadord = new JFrame();
-		frmVisualizadord.setIconImage(Toolkit.getDefaultToolkit().getImage(Visualizador3D.class.getResource("/icon/icon.png")));
-		frmVisualizadord.setTitle("Visualizador 3D");
-		frmVisualizadord.setBounds(50, 20, 1200, 700);
-		frmVisualizadord.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[]{0, 200, 0};
-		gridBagLayout.rowHeights = new int[]{261, 0};
-		gridBagLayout.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{1.0, Double.MIN_VALUE};
-		frmVisualizadord.getContentPane().setLayout(gridBagLayout);
-		
-		// Panel Imagen
-		panelImagen = new Imagen3D();
-		
-		GridBagConstraints gbc_panelImagen = new GridBagConstraints();
-		gbc_panelImagen.fill = GridBagConstraints.BOTH;
-		gbc_panelImagen.insets = new Insets(15, 15, 15, 5);
-		gbc_panelImagen.gridx = 0;
-		gbc_panelImagen.gridy = 0;
-		frmVisualizadord.getContentPane().add(panelImagen, gbc_panelImagen);
-
-		// Cargar Handler
-		MouseHandler mouseHandler = new MouseHandler(this, panelImagen);
-		
-		// Panel Opciones
-		panelOpciones = new JPanel();
-		
-		GridBagConstraints gbc_panelOpciones = new GridBagConstraints();
-		gbc_panelOpciones.insets = new Insets(15, 10, 15, 15);
-		gbc_panelOpciones.fill = GridBagConstraints.BOTH;
-		gbc_panelOpciones.gridx = 1;
-		gbc_panelOpciones.gridy = 0;
-		frmVisualizadord.getContentPane().add(panelOpciones, gbc_panelOpciones);
-		
-		GridBagLayout gbl_panelOpciones = new GridBagLayout();
-		gbl_panelOpciones.columnWidths = new int[]{48, 0};
-		gbl_panelOpciones.rowHeights = new int[]{36, 0, 0, 0, 0, 0, 0};
-		gbl_panelOpciones.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_panelOpciones.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		panelOpciones.setLayout(gbl_panelOpciones);
-		
-		initMenu();
-		
-
 	}
 
 	protected void actualizarVista() {
@@ -620,63 +728,6 @@ public class Visualizador3D {
 		}
 	}
 
-	// Menu Bar
-	private void initMenu() {
-		
-		menuBar = new JMenuBar();
-		frmVisualizadord.setJMenuBar(menuBar);
-		
-		mnArchivo = new JMenu("Archivo");
-		menuBar.add(mnArchivo);
-		
-		mntmCargarArchivo = new JMenuItem("Cargar Archivo");
-		mntmCargarArchivo.setIcon(new ImageIcon(Visualizador3D.class.getResource("/icon/open.png")));
-		mntmCargarArchivo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
-		mntmCargarArchivo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				abrirArchivo();
-			}
-		});
-		mnArchivo.add(mntmCargarArchivo);
-		
-		mntmGuardarComo = new JMenuItem("Guardar Como");
-		mntmGuardarComo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				guardarImagenComo();
-			}
-		});
-		mntmGuardarComo.setIcon(new ImageIcon(Visualizador3D.class.getResource("/icon/save.png")));
-		mntmGuardarComo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
-		mnArchivo.add(mntmGuardarComo);
-		
-		separator = new JSeparator();
-		mnArchivo.add(separator);
-		
-		mntmSalir = new JMenuItem("Salir");
-		mntmSalir.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				frmVisualizadord.dispose();
-			}
-		});
-		mntmSalir.setIcon(new ImageIcon(Visualizador3D.class.getResource("/icon/close.png")));
-		mntmSalir.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_MASK));
-		mnArchivo.add(mntmSalir);
-		
-		mnAyuda = new JMenu("Ayuda");
-		menuBar.add(mnAyuda);
-		
-		mntmAcercaDe = new JMenuItem("Acerca De");
-		mntmAcercaDe.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				AcercaDe acercaDe = new AcercaDe();
-				acercaDe.setVisible(true);
-			}
-		});
-		mntmAcercaDe.setIcon(new ImageIcon(Visualizador3D.class.getResource("/icon/about.png")));
-		mnAyuda.add(mntmAcercaDe);
-		
-	}
-
 	protected void cargar(File f) {
 		// Parsear archivo *.sur para cargar estructura
 		Objeto3D obj = new Objeto3D(f);
@@ -695,7 +746,7 @@ public class Visualizador3D {
         // Comprobar si se ha pulsado Aceptar
         if (respuesta == JFileChooser.APPROVE_OPTION){
             cargar(fc.getSelectedFile());
-            comboBox.setSelectedIndex(0);
+            comboObjeto.setSelectedIndex(0);
         }
 	}
 	
@@ -736,26 +787,6 @@ public class Visualizador3D {
 	public void setPosicionActual(int f, int c) {
 		labelPosX.setText("" + c);
 		lblPosY.setText("" + f);
-	}
-
-	protected void actualizarMuestraObjeto() {
-		int r = (int) spinObjRed.getValue();
-		int g = (int) spinObjGreen.getValue();
-		int b = (int) spinObjBlue.getValue();
-
-		Color c = new Color(r,g,b);
-		lblObjMuestra.setIcon(new ImageIcon(new ImgMuestra(c, 80, 80)));
-		panelImagen.setObjectColor(c);
-	}
-	
-	protected void actualizarMuestraAmbiente() {
-		int r = (int) spinAmbRed.getValue();
-		int g = (int) spinAmbGreen.getValue();
-		int b = (int) spinAmbBlue.getValue();
-
-		Color c = new Color(r,g,b);
-		lblAmbMuestra.setIcon(new ImageIcon(new ImgMuestra(c, 80, 80)));
-		panelImagen.setAmbientColor(c);
 	}
 	
 }

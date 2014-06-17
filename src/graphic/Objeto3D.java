@@ -176,6 +176,7 @@ public class Objeto3D {
 	}
 	
 	public void aplicarTransformacion(MatrizTransformacion matriz){
+		
 		HashMap<Integer, Punto3D> puntosNuevos = new HashMap<Integer, Punto3D>();
 
 		Set<Entry<Integer, Punto3D>> pares = this.puntosNuevos.entrySet();
