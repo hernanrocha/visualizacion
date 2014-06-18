@@ -392,7 +392,7 @@ public class Visualizador3D {
 				}
 			}
 		});
-		comboLuz.setModel(new DefaultComboBoxModel(new String[] {"Izquierda", "Derecha", "Arriba", "Abajo", "Frente", "Trasera"}));
+		comboLuz.setModel(new DefaultComboBoxModel(new String[] {"Lateral Izquierda", "Lateral Derecha", "Cenital", "Contrapicado", "Frontal", "Contraluz", "Semi-lateral", "Semi-contraluz"}));
 		comboLuz.setSelectedIndex(0);
 		GridBagConstraints gbc_comboLuz = new GridBagConstraints();
 		gbc_comboLuz.insets = new Insets(5, 5, 5, 5);
@@ -733,7 +733,8 @@ public class Visualizador3D {
 		Objeto3D obj = new Objeto3D(f);
 		
 		// Mostrar objeto en pantalla
-		panelImagen.setObjeto(obj);		
+		panelImagen.setObjeto(obj);
+		actualizarLuz();
 	}
 	
 	protected void abrirArchivo() {

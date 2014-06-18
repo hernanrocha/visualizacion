@@ -132,8 +132,9 @@ public class Imagen3D extends JPanel {
 				 new Punto3D(0, centro.getY() + 1500, 0),
 				 new Punto3D(0, centro.getY() - 1500, 0),
 				 new Punto3D(0, 0, centro.getZ() - 1500),
-				 new Punto3D(0, 0, centro.getZ() + 1500)};
-		this.luzPunto = luces[0];
+				 new Punto3D(0, 0, centro.getZ() + 1500),
+				 new Punto3D(centro.getX() - 1500, 0, centro.getZ() - 1500),
+				 new Punto3D(centro.getX() + 1500, 0, centro.getZ() + 1500)};
 		
 		updateUI();
 	}
