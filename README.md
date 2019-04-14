@@ -9,6 +9,6 @@ Para ejecutarse necesita tener [Java](http://www.java.com/es/) instalado.
 
 ## Modo de Uso
 
-- Seleccionar el archivo ** *.sur**
+- Seleccionar el archivo ***.sur**
 - Mover con clic izquierdo y rotar con clic derecho
 - Hacer zoom con rueda del mouse
